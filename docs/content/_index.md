@@ -17,7 +17,7 @@ layout: hextra-home
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  extra description&nbsp;<br class="sm:hx-block hx-hidden" />here
+  GANIMATEER is an animation post-processing toolset that receives interpretable manipulations from the users and delivers realistic character animation edits and generations, jointly delivering control and utility back to the creators. &nbsp;<br class="sm:hx-block hx-hidden" />
 {{< /hextra/hero-subtitle >}}
 </div>
 
