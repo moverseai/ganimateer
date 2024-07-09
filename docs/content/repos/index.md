@@ -21,7 +21,7 @@ GANIMATEER repositories & methods.
   >}}
 
   {{< card
-        link="https://github.com/moverseai/rerun_animation"
+        link="https://github.com/moverseai/rerun-animation"
         title="Rerun Animation"
         image="images/andy-holmes-rCbdp8VCYhQ-unsplash.jpg"
         imageStyle="object-fit:cover; aspect-ratio:16/9;"
