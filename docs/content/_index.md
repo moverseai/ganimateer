@@ -47,6 +47,5 @@ layout: hextra-home
     style="background: radial-gradient(ellipse at 50% 80%,rgba(142,53,74,0.15),hsla(0,0%,100%,0));"
   >}}
 
-  
   -->
 {{< /hextra/feature-grid >}}
