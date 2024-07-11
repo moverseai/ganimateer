@@ -1,1 +1,1 @@
-# ganimateer
+# GANIMATEER: A toolset for fluent 3D animated character creation

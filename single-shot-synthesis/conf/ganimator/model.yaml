@@ -1,0 +1,637 @@
+# @package _global_
+
+feet_indices: &contacts [4, 5, 9, 10]
+
+gen_prototype: &gen_template ${model.components.gen_s1}
+disc_prototype: &disc_template ${model.components.disc_s1}
+
+model:
+  parameters:
+    initializers:
+      partial:
+        named_components.gen_s1:
+          from: ${CKPT}
+          keys: ["*.gen_s1.*"]
+          replace:
+            - source: models.gen_s1.
+              target: null
+        named_components.gen_s2:
+          from: ${CKPT}
+          keys: ["*.gen_s2.*"]
+          replace:
+            - source: models.gen_s2.
+              target: null
+        named_components.gen_s3:
+          from: ${CKPT}
+          keys: ["*.gen_s3.*"]
+          replace:
+            - source: models.gen_s3.
+              target: null
+        named_components.gen_s4:
+          from: ${CKPT}
+          keys: ["*.gen_s4.*"]
+          replace:
+            - source: models.gen_s4.
+              target: null
+  components:
+    gen_s1:
+      parents:
+        &parents [
+          -1,
+          0,
+          1,
+          2,
+          3,
+          4,
+          0,
+          6,
+          7,
+          8,
+          9,
+          0,
+          11,
+          12,
+          13,
+          14,
+          13,
+          16,
+          17,
+          18,
+          13,
+          20,
+          21,
+          22,
+        ]
+      contacts: *contacts
+    gen_s2: *gen_template
+    gen_s3: *gen_template
+    gen_s4:
+      parents: *parents
+      contacts: *contacts
+    disc_s1:
+      parents: *parents
+      contacts: *contacts
+    disc_s2: *disc_template
+    disc_s3: *disc_template
+    disc_s4:
+      parents: *parents
+      contacts: *contacts
+  monads:
+    random:
+      shape: 1
+      mode: unit
+      scale: 1.0
+      includes_batch: false
+    scalar:
+      value: -1
+    demux:
+      joints: 24
+      features: 6
+    fake_history_level_0:
+      history_size: 50
+    fake_history_level_1:
+      history_size: 50
+    index:
+      indices: *contacts
+      dim: -2
+    forward_kinematics:
+      parents: *parents
+    index_root:
+      dim: -3
+    to_smplh:
+      from_joint_number: 24
+      mapping:
+        - [0] #  'pelvis'
+        - [1] #  'left_hip'
+        - [6] #  'right_hip'
+        - [11] #  'spine1'
+        - [2] #  'left_knee'
+        - [7] #  'right_knee'
+        - [12] #  'spine2'
+        - [3] #  'left_ankle'
+        - [8] #  'right_ankle'
+        - [13] #  'spine3'
+        - [5] #  'left_foot'
+        - [10] #  'right_foot'
+        - [14] #  'neck'
+        - [13, 16] #  'left_collar'
+        - [13, 20] #  'right_collar'
+        - [15] #  'head'
+        - [16] #  'left_shoulder'
+        - [20] #  'right_shoulder'
+        - [17] #  'left_elbow'
+        - [21] #  'right_elbow'
+        - [18] #  'left_wrist'
+        - [22] #  'right_wrist'
+    encode_movement:
+      ckpt: ${mdm_ckpt}
+    encode_motion:
+      ckpt: ${mdm_ckpt}
+    create_random_clips:
+      window_size: 35
+    interpolate:
+      mode: linear
+      scale: 1.0
+
+_moai_:
+  _definitions_:
+    _flows_:
+      gen_s1: &gen_exec
+        noise0: [noise_level_0]
+        noise1: [noise_level_1]
+        generated: [prev]
+        _out_: [fake]
+
+      gen_s2:
+        <<: *gen_exec
+        noise0: [noise_level_2]
+        noise1: [noise_level_3]
+
+      gen_s3:
+        <<: *gen_exec
+        noise0: [noise_level_4]
+        noise1: [noise_level_5]
+
+      gen_s4:
+        noise0: [noise_level_6]
+        generated: [prev]
+        _out_: [fake]
+
+      disc_s1: &disc_exec
+        fake0:
+          - fake.stage0
+          - motion_data_level_x
+          - interpolated_0
+        fake1:
+          - fake.stage1
+          - motion_data_level_y
+          - interpolated_1
+        _out_:
+          - fake_score
+          - real_score
+          - interpolated_score
+
+      disc_s2: *disc_exec
+      disc_s3: *disc_exec
+
+      disc_s4:
+        fake0:
+          - fake.stage0
+          - motion_data_level_x
+          - interpolated_0
+        _out_:
+          - fake_score
+          - real_score
+          - interpolated_score
+
+      horizontal_input_mapping:
+        _mi_:
+          expression:
+            - ${mi:"randn(motion_data_level_0) * unsq(amps_level_0, 1, 1)"}
+            - ${mi:"randn(motion_data_level_1) * unsq(amps_level_1, 1, 1)"}
+            - ${mi:"randn(motion_data_level_2) * unsq(amps_level_2, 1, 1)"}
+            - ${mi:"randn(motion_data_level_3) * unsq(amps_level_3, 1, 1)"}
+            - ${mi:"randn(motion_data_level_4) * unsq(amps_level_4, 1, 1)"}
+            - ${mi:"randn(motion_data_level_5) * unsq(amps_level_5, 1, 1)"}
+            - ${mi:"randn(motion_data_level_6) * unsq(amps_level_6, 1, 1)"}
+          _out_:
+            - noise_level_0
+            - noise_level_1
+            - noise_level_2
+            - noise_level_3
+            - noise_level_4
+            - noise_level_5
+            - noise_level_6
+
+      stage_1:
+        _mi_:
+          expression:
+            - motion_data_level_0
+            - motion_data_level_1
+            - ${mi:"zeros(motion_data_level_0)"}
+          _out_:
+            - motion_data_level_x
+            - motion_data_level_y
+            - prev
+
+      stage_1_reco:
+        _mi_:
+          expression:
+            - z_star
+            - ${mi:"zeros(motion_data_level_1)"}
+          _out_:
+            - noise_level_0
+            - noise_level_1
+
+      stage_2:
+        interpolate:
+          image: [fake.stage1]
+          target: [motion_data_level_2]
+          _out_: [prev]
+        _mi_:
+          expression:
+            - motion_data_level_2
+            - motion_data_level_3
+          _out_:
+            - motion_data_level_x
+            - motion_data_level_y
+
+      stage_2_reco:
+        _mi_:
+          expression:
+            - ${mi:"zeros(motion_data_level_2)"}
+            - ${mi:"zeros(motion_data_level_3)"}
+          _out_:
+            - noise_level_2
+            - noise_level_3
+
+      stage_3:
+        interpolate:
+          image: [fake.stage1]
+          target: [motion_data_level_4]
+          _out_: [prev]
+        _mi_:
+          expression:
+            - motion_data_level_4
+            - motion_data_level_5
+          _out_:
+            - motion_data_level_x
+            - motion_data_level_y
+
+      stage_3_reco:
+        _mi_:
+          expression:
+            - ${mi:"zeros(motion_data_level_4)"}
+            - ${mi:"zeros(motion_data_level_5)"}
+          _out_:
+            - noise_level_4
+            - noise_level_5
+
+      stage_4:
+        interpolate:
+          image: [fake.stage1]
+          target: [motion_data_level_6]
+          _out_: [prev]
+        _mi_:
+          expression:
+            - motion_data_level_6
+          _out_:
+            - motion_data_level_x
+
+      stage_4_reco:
+        _mi_:
+          expression:
+            - ${mi:"zeros(motion_data_level_6)"}
+          _out_:
+            - noise_level_6
+
+      stage_1_val:
+        _mi_:
+          expression:
+            - ${mi:"randn(motion_data_level_0) * unsq(amps_level_0, 1, 1)"}
+            - ${mi:"zeros(motion_data_level_1)"}
+            - motion_data_level_0
+            - motion_data_level_1
+            - ${mi:"zeros(motion_data_level_0)"}
+          _out_:
+            - noise_level_0
+            - noise_level_1
+            - motion_data_level_x
+            - motion_data_level_y
+            - prev
+
+      stage_2_val:
+        interpolate:
+          image: [fake.stage1]
+          target: [motion_data_level_2]
+          _out_: [prev]
+        _mi_:
+          expression:
+            - ${mi:"zeros(motion_data_level_2)"}
+            - ${mi:"zeros(motion_data_level_3)"}
+            - motion_data_level_2
+            - motion_data_level_3
+          _out_:
+            - noise_level_2
+            - noise_level_3
+            - motion_data_level_x
+            - motion_data_level_y
+
+      stage_3_val:
+        interpolate:
+          image: [fake.stage1]
+          target: [motion_data_level_4]
+          _out_: [prev]
+        _mi_:
+          expression:
+            - ${mi:"zeros(motion_data_level_4)"}
+            - ${mi:"zeros(motion_data_level_5)"}
+            - motion_data_level_4
+            - motion_data_level_5
+          _out_:
+            - noise_level_4
+            - noise_level_5
+            - motion_data_level_x
+            - motion_data_level_y
+
+      stage_4_val:
+        interpolate:
+          image: [fake.stage1]
+          target: [motion_data_level_6]
+          _out_: [prev]
+        _mi_:
+          expression:
+            - ${mi:"zeros(motion_data_level_6)"}
+            - motion_data_level_6
+          _out_:
+            - noise_level_6
+            - motion_data_level_x
+
+      disc_prediscrimination:
+        random:
+          tensor: [motion_data_level_x, motion_data_level_y]
+          _out_: [blend_0, blend_1]
+        force_grad:
+          tensor:
+            - ${mi:"(motion_data_level_x * unsq(blend_0, 1)) + (fake.stage0 * (1 - unsq(blend_0, 1)))"}
+            - ${mi:"(motion_data_level_y * unsq(blend_1, 1)) + (fake.stage1 * (1 - unsq(blend_1, 1)))"}
+          _out_:
+            - interpolated_0
+            - interpolated_1
+        fake_history_level_0:
+          fake: [fake.stage0]
+          _out_: [fake_level_0]
+        fake_history_level_1:
+          fake: [fake.stage1]
+          _out_: [fake_level_1]
+
+      disc_prediscrimination_s4:
+        random:
+          tensor: [motion_data_level_x]
+          _out_: [blend_0]
+        force_grad:
+          tensor:
+            - ${mi:"(motion_data_level_x * unsq(blend_0, 1)) + (fake.stage0 * (1 - unsq(blend_0, 1)))"}
+          _out_:
+            - interpolated_0
+        fake_history_level_0:
+          fake: [fake.stage0]
+          _out_: [fake_level_0]
+
+      sample_prediscrimination: &predisc
+        random:
+          tensor: [motion_data_level_x, motion_data_level_y]
+          _out_: [blend_0, blend_1]
+        force_grad:
+          tensor:
+            - ${mi:"(motion_data_level_x * unsq(blend_0, 1)) + (fake.stage0 * (1 - unsq(blend_0, 1)))"}
+            - ${mi:"(motion_data_level_y * unsq(blend_1, 1)) + (fake.stage1 * (1 - unsq(blend_1, 1)))"}
+          _out_:
+            - interpolated_0
+            - interpolated_1
+        demux:
+          motion_data:
+            - ${mi:"transpose(fake.stage0, -2, -1)"}
+            - ${mi:"transpose(fake.stage1, -2, -1)"}
+            - ${mi:"transpose(motion_data_level_x, -2, -1)"}
+            - ${mi:"transpose(motion_data_level_y, -2, -1)"}
+          _out_:
+            - demuxed_0
+            - demuxed_1
+            - demuxed_gt_0
+            - demuxed_gt_1
+        gram_schmidt:
+          sixd:
+            [
+              demuxed_0.joint_sixd,
+              demuxed_1.joint_sixd,
+              demuxed_gt_0.joint_sixd,
+              demuxed_gt_1.joint_sixd,
+            ]
+          _out_:
+            [
+              demuxed_joint_rotma_0,
+              demuxed_joint_rotma_1,
+              demuxed_gt_joint_rotmat_0,
+              demuxed_gt_joint_rotmat_1,
+            ]
+        integrate_velocity:
+          velocity:
+            [
+              demuxed_0.root_position,
+              demuxed_1.root_position,
+              demuxed_gt_0.root_position,
+              demuxed_gt_1.root_position,
+            ]
+          position: [root_position, root_position, root_position, root_position]
+          _out_:
+            [
+              global_root_position_0,
+              global_root_position_1,
+              global_root_position_0_gt,
+              global_root_position_1_gt,
+            ]
+        forward_kinematics:
+          rotation:
+            [
+              demuxed_joint_rotma_0,
+              demuxed_joint_rotma_1,
+              demuxed_gt_joint_rotmat_0,
+              demuxed_gt_joint_rotmat_1,
+            ]
+          position:
+            [
+              global_root_position_0,
+              global_root_position_1,
+              global_root_position_0_gt,
+              global_root_position_1_gt,
+            ]
+          offsets: [joint_offsets, joint_offsets, joint_offsets, joint_offsets]
+          parents: [joint_parents, joint_parents, joint_parents, joint_parents]
+          _out_: [fk_0_pred, fk_1_pred, fk_0_gt, fk_1_gt]
+        simple_velocity:
+          positions:
+            - ${mi:"fk_0_pred.positions[:,:,${feet_indices}]"}
+            - ${mi:"fk_1_pred.positions[:,:,${feet_indices}]"}
+          _out_:
+            - velocities_0
+            - velocities_1
+
+      sample_prediscrimination_s4: &predisc_last
+        random:
+          tensor: [motion_data_level_x]
+          _out_: [blend_0]
+        force_grad:
+          tensor:
+            - ${mi:"(motion_data_level_x * unsq(blend_0, 1)) + (fake.stage0 * (1 - unsq(blend_0, 1)))"}
+          _out_:
+            - interpolated_0
+        demux:
+          motion_data:
+            - ${mi:"transpose(fake.stage0, -2, -1)"}
+            - ${mi:"transpose(motion_data_level_x, -2, -1)"}
+          _out_:
+            - demuxed_0
+            - demuxed_gt_0
+        gram_schmidt:
+          sixd: [demuxed_0.joint_sixd, demuxed_gt_0.joint_sixd]
+          _out_: [demuxed_joint_rotma_0, demuxed_gt_joint_rotmat_0]
+        integrate_velocity:
+          velocity: [demuxed_0.root_position, demuxed_gt_0.root_position]
+          position: [root_position, root_position]
+          _out_: [global_root_position_0, global_root_position_0_gt]
+        forward_kinematics:
+          rotation: [demuxed_joint_rotma_0, demuxed_gt_joint_rotmat_0]
+          position: [global_root_position_0, global_root_position_0_gt]
+          offsets: [joint_offsets, joint_offsets]
+          parents: [joint_parents, joint_parents]
+          _out_: [fk_0_pred, fk_0_gt]
+        simple_velocity:
+          positions:
+            - ${mi:"fk_0_pred.positions[:,:,${feet_indices}]"}
+          _out_:
+            - velocities_0
+
+      reco_prediscrimination: *predisc
+      reco_prediscrimination_s4: *predisc_last
+
+      val_prediscrimination:
+        matrix_transpose:
+          matrix: [fake.stage0, motion_data_level_x]
+          _out_: [fake_level_0_T, motion_data_level_0_T]
+        demux:
+          motion_data:
+            - ${mi:"transpose(fake.stage1, -2, -1)"}
+            - ${mi:"transpose(motion_data_level_y, -2, -1)"}
+          _out_:
+            - demuxed_0
+            - demuxed_gt_0
+
+      val_prediscrimination_last:
+        matrix_transpose:
+          matrix: [fake.stage0, motion_data_level_x]
+          _out_: [fake_level_0_T, motion_data_level_0_T]
+        demux:
+          motion_data:
+            - ${mi:"transpose(fake.stage0, -2, -1)"}
+            - ${mi:"transpose(motion_data_level_x, -2, -1)"}
+          _out_:
+            - demuxed_0
+            - demuxed_gt_0
+
+      val_prediscrimination_post:
+        gram_schmidt:
+          sixd: [demuxed_0.joint_sixd, demuxed_gt_0.joint_sixd]
+          _out_: [demuxed_joint_rotma_0, demuxed_joint_rotma_0_gt]
+        integrate_velocity:
+          velocity: [demuxed_0.root_position, demuxed_gt_0.root_position]
+          position: [root_position, root_position]
+          _out_: [global_root_position_0, global_root_position_0_gt]
+        forward_kinematics:
+          rotation: [demuxed_joint_rotma_0, demuxed_joint_rotma_0_gt]
+          position: [global_root_position_0, global_root_position_0_gt]
+          offsets: [joint_offsets, joint_offsets]
+          parents: [joint_parents, joint_parents]
+          _out_: [fk_0_pred, fk_0_gt]
+        index_last:
+          tensor: [demuxed_0.contact_feats]
+          _out_: [contacts]
+        rotmat_to_euler:
+          rotation: [demuxed_joint_rotma_0]
+          _out_: [demuxed_joint_euler_0]
+        roma_rotmat_to_sixd:
+          matrix: [demuxed_joint_rotma_0, demuxed_joint_rotma_0_gt]
+          _out_: [joint_rotations_sixd, joint_rotations_sixd_gt]
+        _mi_:
+          expression:
+            - ${mi:"flatten(joint_rotations_sixd, 2)"}
+            - ${mi:"flatten(demuxed_0.contact_feats, 2)"}
+            - ${mi:"flatten(demuxed_gt_0.joint_sixd, 2)"}
+            - ${mi:"flatten(demuxed_gt_0.contact_feats, 2)"}
+            - ${mi:"cat(joint_sixd, gen_contact_feats, -1)"}
+            - ${mi:"cat(gt_sixd, gt_contact_feats, -1)"}
+            - demuxed_joint_rotma_0
+            - fk_0_pred.positions
+            - demuxed_0.root_position
+          _out_:
+            - joint_sixd
+            - gen_contact_feats
+            - gt_sixd
+            - gt_contact_feats
+            - gen_feats
+            - gt_feats
+            - joint_rotations
+            - joint_positions
+            - joint_velocity
+        to_smplh:
+          positions: [fk_0_pred.positions, fk_0_gt.positions]
+          rotations: [joint_rotations_sixd, joint_rotations_sixd_gt]
+          _out_: [smplh, smplh_gt]
+        simple_velocity_val:
+          positions: [smplh.positions, smplh_gt.positions]
+          _out_: [smplh_joints_velocity, smplh_joints_velocity_gt]
+        index_root:
+          tensor: [demuxed_joint_rotma_0, demuxed_joint_rotma_0_gt]
+          _out_: [r_rotmat, r_rotmat_gt]
+        index_root_pos:
+          tensor: [smplh_joints_velocity, smplh_joints_velocity_gt]
+          _out_: [r_velocity, r_velocity_gt]
+        rotmat_to_unitquat:
+          rotation: [r_rotmat, r_rotmat_gt]
+          _out_: [r_quat, r_quat_gt]
+        root_linear_velocity_xz:
+          velocity: [r_velocity, r_velocity_gt]
+          rotations: [r_quat, r_quat_gt]
+          _out_: [r_linear_velocity, r_linear_velocity_gt]
+        root_angular_velocity:
+          rotations: [r_quat, r_quat_gt]
+          _out_: [r_angular_velocity, r_angular_velocity_gt]
+        create_mdm_repr:
+          positions: [smplh.positions, smplh_gt.positions]
+          rotations: [smplh.rotations, smplh_gt.rotations]
+          velocities: [smplh_joints_velocity, smplh_joints_velocity_gt]
+          linear: [r_linear_velocity, r_linear_velocity_gt]
+          angular: [r_angular_velocity, r_angular_velocity_gt]
+          _out_: [mdm, mdm_gt]
+        create_random_clips:
+          motion: [mdm, mdm_gt]
+          _out_: [mdm_clips, mdm_gt_clips]
+        encode_movement:
+          inputs: [mdm, mdm_gt, mdm_clips, mdm_gt_clips]
+          _out_:
+            [
+              movement_embed,
+              movement_embed_gt,
+              clips_movement_embeds,
+              clips_movement_embeds_gt,
+            ]
+        encode_motion:
+          inputs:
+            [
+              movement_embed,
+              movement_embed_gt,
+              clips_movement_embeds,
+              clips_movement_embeds_gt,
+            ]
+          _out_: [motion_embed, motion_embed_gt, clips_embeds, clips_embeds_gt]
+
+      test_prediscrimination_post:
+        gram_schmidt:
+          sixd: [demuxed_0.joint_sixd, demuxed_gt_0.joint_sixd]
+          _out_: [demuxed_joint_rotma_0, demuxed_joint_rotma_0_gt]
+        rotmat_to_euler:
+          rotation: [demuxed_joint_rotma_0]
+          _out_: [demuxed_joint_euler_0]
+        rad2deg:
+          radians: [demuxed_joint_euler_0]
+          _out_: [demuxed_joint_euler_0]
+        integrate_velocity:
+          velocity: [demuxed_0.root_position, demuxed_gt_0.root_position]
+          position: [root_position, root_position]
+          _out_: [global_root_position_0, global_root_position_0_gt]
+        forward_kinematics:
+          rotation: [demuxed_joint_rotma_0, demuxed_joint_rotma_0_gt]
+          position: [global_root_position_0, global_root_position_0_gt]
+          offsets: [joint_offsets, joint_offsets]
+          parents: [joint_parents, joint_parents]
+          _out_: [fk_0_pred, fk_0_gt]

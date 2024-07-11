@@ -1,0 +1,4 @@
+# @package model.objectives.disc_wasserstein
+
+_target_: src.supervision.generative.wasserstein.DiscriminatorWasserstein
+per_batch: false

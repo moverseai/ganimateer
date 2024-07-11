@@ -1,0 +1,5 @@
+# @package model.metrics.ldiv
+
+_target_: src.metrics.generation.ganimator_metrics.LocalDiversity
+tmin: 15 # int
+keepall: false # bool

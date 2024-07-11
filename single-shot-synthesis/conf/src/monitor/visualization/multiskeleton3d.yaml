@@ -1,0 +1,4 @@
+# @package model.monitors.multiskeleton3d
+
+_target_: src.visualization.skeleton.multi_skeleton3d
+_partial_: true

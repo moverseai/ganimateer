@@ -1,0 +1,99 @@
+# @package _global_
+
+_moai_:
+  _definitions_:
+    _collections_:
+      _metrics_:
+        features:
+          coverage:
+            pred: [gen_feats]
+            gt: [gt_feats]
+            _out_: [coverage]
+          gdiv:
+            pred: [gen_feats]
+            gt: [gt_feats]
+            _out_: [ganimator_gdiv]
+          ldiv:
+            pred: [gen_feats]
+            gt: [gt_feats]
+            _out_: [ganimator_ldiv]
+          mdm_gdiv:
+            pred: [motion_embed]
+            gt: [motion_embed_gt]
+            _out_: [mdm_gdiv]
+          mdm_ldiv:
+            pred: [clips_embeds]
+            gt: [clips_embeds_gt]
+            _out_: [mdm_ldiv]
+          fid:
+            pred: [motion_embed]
+            gt: [motion_embed_gt]
+            _out_: [fid]
+      _monitors_:
+        show_skeleton_batch:
+          skeleton3d:
+            kpts: [fk_0_pred.positions]
+            path: [skeletons]
+        show_generated_skeleton:
+          multiskeleton3d:
+            kpts: [fk_0_pred.positions]
+            path: [skeletons]
+        export_generated_skeleton:
+          bvh:
+            output_name: ["${bvh_filename}"]
+            export_path: ["${export_path}"]
+            parents: [joint_parents]
+            position: [global_root_position_0]
+            rotations: [demuxed_joint_euler_0]
+            offsets: [joint_offsets]
+            scale: [100.0]
+            names:
+              -
+                - "Hips" # 0
+                - "LeftUpLeg" # 1
+                - "LeftLeg" # 2
+                - "LeftFoot" # 3
+                - "LeftToeBase" # 4
+                - "LeftToe_End" # 5
+                - "RightUpLeg" # 6
+                - "RightLeg" # 7
+                - "RightFoot" # 8
+                - "RightToeBase" # 9
+                - "RightToe_End" # 10
+                - "Spine" # 11
+                - "Spine1" # 12
+                - "Spine2" # 13
+                - "Neck" # 14
+                - "Head" # 15
+                - "LeftShoulder" # 16
+                - "LeftArm" # 17
+                - "LeftForeArm" # 18
+                - "LeftHand" # 19
+                - "RightShoulder" # 20
+                - "RightArm" # 21
+                - "RightForeArm" # 22
+                - "RightHand" # 23
+  _execution_:
+    _monitoring_:
+      _fit_:
+        _batch_:
+          _frequency_: 400
+          _metrics_: []
+          _monitors_:
+            - show_skeleton_batch
+      _val_:
+        _datasets_:
+          repeated_npz:
+            _frequency_: 1
+            _metrics_: #[]
+              - features
+            _monitors_:
+              - show_skeleton_batch
+      _test_:
+        _datasets_:
+          repeated_npz:
+            _frequency_: 1
+            _metrics_: []
+            _monitors_:
+              - show_generated_skeleton
+              - export_generated_skeleton

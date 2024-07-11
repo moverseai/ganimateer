@@ -1,0 +1,5 @@
+# @package model.monads.demux
+
+_target_: src.monads.utils.demux.DeMux
+joints: ???
+features: ???

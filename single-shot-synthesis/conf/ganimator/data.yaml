@@ -1,0 +1,28 @@
+# @package _global_
+
+npz_filename: ???
+train_data_iter: 15000
+
+data:
+  train:
+    iterator:
+      datasets:
+        repeated_npz:
+          filename: ${npz_filename}
+          length: ${train_data_iter}
+
+  val:
+    loader:
+      batch_size: 1
+    iterator:
+      datasets:
+        repeated_npz:
+          filename: ${npz_filename}
+          length:  200 #must be greater than 1 for the FID computation
+
+  test:
+    iterator:
+      datasets:
+        repeated_npz:
+          filename: ${npz_filename}
+          length: 1

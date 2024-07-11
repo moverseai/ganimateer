@@ -1,0 +1,46 @@
+# @package _global_
+
+export_filename: "."
+
+_moai_:
+  _definitions_:
+    _collections_:
+      _monitors_:
+        export_data:
+          append_npz:
+            path:
+              - ${export_filename}
+            keys:
+              - - z_star
+                - amps_level_6
+                - amps_level_5
+                - amps_level_4
+                - amps_level_3
+                - amps_level_2
+                - amps_level_1
+                - amps_level_0
+                - motion_data_level_6
+                - motion_data_level_5
+                - motion_data_level_4
+                - motion_data_level_3
+                - motion_data_level_2
+                - motion_data_level_1
+                - motion_data_level_0
+                - contact_labels_raw
+                - joint_rotation_matrices
+                - root_position
+                - joint_offsets
+                - joint_parents
+            combined:
+              - true
+            compressed:
+              - true
+  _execution_:
+    _monitoring_:
+      _test_:
+         _datasets_:
+          bvh:
+            _frequency_: 1
+            _metrics_: []
+            _monitors_:
+              - export_data

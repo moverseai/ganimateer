@@ -1,0 +1,3 @@
+# @package model.metrics.mdm_ldiv
+
+_target_: src.metrics.generation.mdm_metrics.MDMIntraDiversity

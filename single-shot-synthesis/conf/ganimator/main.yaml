@@ -1,0 +1,105 @@
+defaults:
+  ###### ENGINE
+  - engine/runner: lightning
+  - engine/runner/checkpoint: lightning
+  - engine/modules: [manual_seed, import, rerun, clearml, numpy]
+  - engine/loggers: [tabular, clearml]
+
+  ###### DATA
+  - data/train/loader: torch
+  - data/train/iterator: indexed
+  - data/train/dataset/generic: repeated_npz
+
+  - data/val/loader: torch
+  - data/val/iterator: indexed
+  - data/val/dataset/generic: repeated_npz
+
+  - data/test/loader: torch
+  - data/test/iterator: indexed
+  - data/test/dataset/generic: repeated_npz
+
+  # ###### MODEL
+  - model: moai
+  - src/components:
+      [
+        ganimator_gen,
+        ganimator_gen_last,
+        ganimator_disc,
+        ganimator_disc_last,
+      ]
+
+  ###### MONADS
+  - model/monads/sampling: interpolate
+  - model/monads/generation/tensor: random
+  - model/monads/math: [matrix_transpose, rad2deg]
+  - model/monads/geometry/rotation:
+      [rotmat_to_euler, gram_schmidt, roma_rotmat_to_sixd, rotmat_to_unitquat, roma_rotmat_to_rotvec]
+  - src/monads/pool: [fake_history_level_0, fake_history_level_1]
+  - model/monads/masking: index
+  - src/monads/feature_extractors: [encode_motion, encode_movement]
+  - model/monads/human/pose: forward_kinematics
+  - src/monads/utils:
+      [
+        root_angular_velocity,
+        root_linear_velocity_xz,
+        create_random_clips,
+        create_mdm_repr,
+        index_last,
+        index_root,
+        index_root_pos,
+        force_grad,
+        demux,
+        simple_velocity,
+        simple_velocity_val,
+        integrate_velocity,
+        to_smplh,
+      ]
+
+  - model/modifications: forward_mode
+
+  ###### OPTIMIZATION
+  - model/parameters/initializers: [partial]
+  - model/parameters/optimizers: adam
+  - src/parameters/groups:
+      [
+        gen_s1,
+        gen_s2,
+        gen_s3,
+        gen_s4,
+        disc_s1,
+        disc_s2,
+        disc_s3,
+        disc_s4,
+      ]
+
+  ###### SUPERVISION
+  - model/objectives/regression: L1
+  - model/objectives/generative: gradient_penalty
+  - src/objectives/generative:
+      [disc_wasserstein, gen_wasserstein]
+  - src/objectives/custom: velocity
+
+  ###### VALIDATION
+  - model/metrics/generation: fid
+  - src/metric/generative:
+      [
+        coverage,
+        global_diversity,
+        local_diversity,
+        mdm_global_diversity,
+        mdm_local_diversity,
+      ]
+
+  ###### MONITOR
+  - src/monitor/visualization: [skeleton3d, multiskeleton3d]
+  - src/exporters: bvh
+
+  - util
+  - data
+  - model
+  - optim
+  - scheduling
+  - metrics
+
+  - override hydra/hydra_logging: moai
+  - override hydra/job_logging: moai

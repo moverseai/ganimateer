@@ -1,0 +1,5 @@
+# @package model.monads.simple_velocity_val
+
+_target_: src.monads.utils.simple_velocity.SimpleVelocity
+zero_pad: true # bool
+return_norm: false

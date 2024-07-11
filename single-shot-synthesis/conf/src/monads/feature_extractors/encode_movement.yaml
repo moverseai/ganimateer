@@ -1,0 +1,4 @@
+# @package model.monads.encode_movement
+
+_target_: src.monads.feature_extractors.movement_encoder.MovementConvEncoder
+ckpt: ???

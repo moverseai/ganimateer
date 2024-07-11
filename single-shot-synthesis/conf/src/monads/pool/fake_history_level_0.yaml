@@ -1,0 +1,5 @@
+# @package model.monads.fake_history_level_0
+
+_target_: moai.monads.generative.fake_history.GradualFakeHistory
+history_size: ???
+percentage: 0.5

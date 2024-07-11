@@ -1,0 +1,3 @@
+# @package model.objectives.velocity
+
+_target_: src.supervision.custom.velocity.VeloLabelConsistencyLoss

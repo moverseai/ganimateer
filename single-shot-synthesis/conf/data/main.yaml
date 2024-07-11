@@ -1,0 +1,40 @@
+defaults:
+   ###### ENGINE
+   - engine/runner: lightning
+   - engine/modules: import
+   - engine/loggers: tabular
+
+   # ###### DATA
+   - data/test/loader: torch
+   - data/test/iterator: indexed
+   - src/data/test: bvh
+
+   # ###### MODEL
+   - model: moai
+
+   # ###### PROCESS
+   - model/monads/math: deg2rad
+   - src/monads/utils:
+        [
+           noise_scale,
+           root_features,
+           simple_velocity,
+           foot_contact_detection,
+           get_pyramid_lengths,
+        ]
+   - model/monads/geometry/rotation: [euler_to_rotmat, roma_rotmat_to_sixd]
+   - model/monads/tensor: alias
+   - model/monads/sampling: [scale_pyramid, interpolate]
+   - model/monads/generation/tensor: [zeros, random_like]
+   - model/monads/human/pose: forward_kinematics
+
+   - model/monitors/exporting/local: append_npz
+
+   - data
+   - flow
+   - monitoring
+   - util
+
+   ###### HYDRA
+   - override hydra/job_logging: colorlog
+   - override hydra/hydra_logging: colorlog

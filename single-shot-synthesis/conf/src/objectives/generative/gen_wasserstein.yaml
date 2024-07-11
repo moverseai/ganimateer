@@ -1,0 +1,4 @@
+# @package model.objectives.gen_wasserstein
+
+_target_: src.supervision.generative.wasserstein.GeneratorWasserstein
+per_batch: false

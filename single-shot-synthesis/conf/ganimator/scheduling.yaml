@@ -1,0 +1,179 @@
+# @package _global_
+
+_moai_:
+  _execution_:
+    _schedule_:
+      - _epoch_: 1
+        _modifications_:
+          forward_mode:
+            modules:
+              gen_s1: eval_nograd
+        _fit_:
+          _stages_:
+            process_disc:
+              _optimizer_: optim_disc_stage_1
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - gen_s1
+                - stage_2
+                - gen_s2
+                - disc_prediscrimination
+                - disc_s2
+            process_sample:
+              _optimizer_: optim_gen_stage_1
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - gen_s1
+                - stage_2
+                - gen_s2
+                - sample_prediscrimination
+                - disc_s2
+            process_reco:
+              _optimizer_: optim_gen_stage_1
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - stage_1_reco
+                - gen_s1
+                - stage_2
+                - stage_2_reco
+                - gen_s2
+                - reco_prediscrimination
+        _val_:
+          _datasets_:
+            repeated_npz:
+              _flows_:
+                - stage_1_val
+                - gen_s1
+                - stage_2_val
+                - gen_s2
+                - val_prediscrimination
+                - val_prediscrimination_post
+      - _epoch_: 2
+        _modifications_:
+          forward_mode:
+            modules:
+              gen_s2: eval_nograd
+        _fit_:
+          _stages_:
+            process_disc:
+              _optimizer_: optim_disc_stage_2
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - gen_s1
+                - stage_2
+                - gen_s2
+                - stage_3
+                - gen_s3
+                - disc_prediscrimination
+                - disc_s3
+            process_sample:
+              _optimizer_: optim_gen_stage_2
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - gen_s1
+                - stage_2
+                - gen_s2
+                - stage_3
+                - gen_s3
+                - sample_prediscrimination
+                - disc_s3
+            process_reco:
+              _optimizer_: optim_gen_stage_2
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - stage_1_reco
+                - gen_s1
+                - stage_2
+                - stage_2_reco
+                - gen_s2
+                - stage_3
+                - stage_3_reco
+                - gen_s3
+                - reco_prediscrimination
+        _val_:
+          _datasets_:
+            repeated_npz:
+              _flows_:
+                - stage_1_val
+                - gen_s1
+                - stage_2_val
+                - gen_s2
+                - stage_3_val
+                - gen_s3
+                - val_prediscrimination
+                - val_prediscrimination_post
+      - _epoch_: 3
+        _modifications_:
+          forward_mode:
+            modules:
+              gen_s3: eval_nograd
+        _fit_:
+          _stages_:
+            process_disc:
+              _optimizer_: optim_disc_stage_3
+              _objective_: discriminate_last
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - gen_s1
+                - stage_2
+                - gen_s2
+                - stage_3
+                - gen_s3
+                - stage_4
+                - gen_s4
+                - disc_prediscrimination_s4
+                - disc_s4
+            process_sample:
+              _optimizer_: optim_gen_stage_3
+              _objective_: sample_last
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - gen_s1
+                - stage_2
+                - gen_s2
+                - stage_3
+                - gen_s3
+                - stage_4
+                - gen_s4
+                - sample_prediscrimination_s4
+                - disc_s4
+            process_reco:
+              _optimizer_: optim_gen_stage_3
+              _objective_: reco_last
+              _flows_:
+                - horizontal_input_mapping
+                - stage_1
+                - stage_1_reco
+                - gen_s1
+                - stage_2
+                - stage_2_reco
+                - gen_s2
+                - stage_3
+                - stage_3_reco
+                - gen_s3
+                - stage_4
+                - stage_4_reco
+                - gen_s4
+                - reco_prediscrimination_s4
+        _val_:
+          _datasets_:
+            repeated_npz:
+              _flows_:
+                - stage_1_val
+                - gen_s1
+                - stage_2_val
+                - gen_s2
+                - stage_3_val
+                - gen_s3
+                - stage_4_val
+                - gen_s4
+                - val_prediscrimination_last
+                - val_prediscrimination_post
