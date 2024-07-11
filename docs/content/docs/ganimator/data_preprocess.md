@@ -112,14 +112,14 @@ root_features:
   _out_: [root_features]
 ```
 
-By concatenating the individual features described above, we end up with the `motion features` representation that will be used as input to the model:
+By concatenating the individual features described above, we end up with the `motion data` representation that will be used as input to the model:
 
 ```yaml {filename="flow.yaml"}
 _mi_:
   expression:
     - ${mi:"cat(joint_rotations_sixd_flat, contact_labels_flat, root_features, zero_position, -1)"}
   _out_:
-    - motion_features
+    - motion_data
 ```
 
 The next step is to prepare the downsampled versions of the motion features for each GANimator stage. To do so, we employ a monad for preparing 6 pyramid levels:
@@ -127,25 +127,25 @@ The next step is to prepare the downsampled versions of the motion features for 
 ```yaml {filename="flow.yaml"}
 get_pyramid_lengths:
   tensor:
-    - ${mi:"transpose(motion_features, -2, -1)"}
-  _out_: [motion_features_pyramid]
+    - ${mi:"transpose(motion_data, -2, -1)"}
+  _out_: [motion_data_pyramid]
 _mi_alias:
   expression:
-    - ${mi:"transpose(motion_features, -2, -1)"}
-    - motion_features_pyramid.level_5
-    - motion_features_pyramid.level_4
-    - motion_features_pyramid.level_3
-    - motion_features_pyramid.level_2
-    - motion_features_pyramid.level_1
-    - motion_features_pyramid.level_0
+    - ${mi:"transpose(motion_data, -2, -1)"}
+    - motion_data_pyramid.level_6
+    - motion_data_pyramid.level_5
+    - motion_data_pyramid.level_4
+    - motion_data_pyramid.level_3
+    - motion_data_pyramid.level_2
+    - motion_data_pyramid.level_1
   _out_:
-    - motion_features_level_6
-    - motion_features_level_5
-    - motion_features_level_4
-    - motion_features_level_3
-    - motion_features_level_2
-    - motion_features_level_1
-    - motion_features_level_0
+    - motion_data_level_6
+    - motion_data_level_5
+    - motion_data_level_4
+    - motion_data_level_3
+    - motion_data_level_2
+    - motion_data_level_1
+    - motion_data_level_0
 ```
 
 which are later renamed for practical reasons.
@@ -157,36 +157,36 @@ The amplitudes are realized as the mean squared error between the original motio
 ```yaml {filename="flow.yaml"}
 noise_scale:
   target:
-    - motion_features_level_6
-    - motion_features_level_5
-    - motion_features_level_4
-    - motion_features_level_3
-    - motion_features_level_2
-    - motion_features_level_1
-    - motion_features_level_0
+    - motion_data_level_6
+    - motion_data_level_5
+    - motion_data_level_4
+    - motion_data_level_3
+    - motion_data_level_2
+    - motion_data_level_1
+    - motion_data_level_0
   reconstructed:
-    - motion_features_level_6_recon
-    - motion_features_level_5_recon
-    - motion_features_level_4_recon
-    - motion_features_level_3_recon
-    - motion_features_level_2_recon
-    - motion_features_level_1_recon
-    - ${mi:"zeros(motion_features_level_0)"}
+    - motion_data_level_6_recon
+    - motion_data_level_5_recon
+    - motion_data_level_4_recon
+    - motion_data_level_3_recon
+    - motion_data_level_2_recon
+    - motion_data_level_1_recon
+    - ${mi:"zeros(motion_data_level_0)"}
   _out_:
-    - amplitude_level_6
-    - amplitude_level_5
-    - amplitude_level_4
-    - amplitude_level_3
-    - amplitude_level_2
-    - amplitude_level_1
-    - amplitude_level_0
+    - amps_level_6
+    - amps_level_5
+    - amps_level_4
+    - amps_level_3
+    - amps_level_2
+    - amps_level_1
+    - amps_level_0
 ```
 
 while for the z* we sample a normal distribution and for a tensor with the same size as the lowest level of the pyramid:
 
 ```yaml {filename="flow.yaml"}
 random_like:
-  tensor: [motion_features_pyramid.level_1]
+  tensor: [motion_data_pyramid.level_1]
   _out_: [z_star_level_0]
 ```
 
@@ -199,20 +199,20 @@ export_data:
       - ${export_filename}
     keys:
       - - z_star_level_0
-        - amplitude_level_6
-        - amplitude_level_5
-        - amplitude_level_4
-        - amplitude_level_3
-        - amplitude_level_2
-        - amplitude_level_1
-        - amplitude_level_0
-        - motion_features_level_6
-        - motion_features_level_5
-        - motion_features_level_4
-        - motion_features_level_3
-        - motion_features_level_2
-        - motion_features_level_1
-        - motion_features_level_0
+        - amps_level_6
+        - amps_level_5
+        - amps_level_4
+        - amps_level_3
+        - amps_level_2
+        - amps_level_1
+        - amps_level_0
+        - motion_data_level_6
+        - motion_data_level_5
+        - motion_data_level_4
+        - motion_data_level_3
+        - motion_data_level_2
+        - motion_data_level_1
+        - motion_data_level_0
         - contact_labels_raw
         - joint_rotation_matrices
         - root_position

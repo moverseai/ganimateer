@@ -60,15 +60,15 @@ generator_sX: #combined generators for stages 1-3
 discriminator_sX: #combined discriminator for stages 1-3
   fake0:
     - fake.stage0
-    - motion_features_level_x
+    - motion_data_level_x
   fake1:
     - fake.stage1
-    - motion_features_level_y
+    - motion_data_level_y
   _out_:
     - fake_score
     - real_score
 ```
-The generation part of the stage receives an amplified noisy input for the 1st generator (`noise0`) and another one for the 2nd generator (`noise1`), the generated motion features of the previous stage (`generated`) and returns 2 generated (fake) motion features - one per generator. The corresponding discrimination part receives the 2 generated features (`fake0`, `fake1`) and the corresponding real ones (`motion_features_level_x`, `motion_features_level_y`) and returns a score for both.
+The generation part of the stage receives an amplified noisy input for the 1st generator (`noise0`) and another one for the 2nd generator (`noise1`), the generated motion features of the previous stage (`generated`) and returns 2 generated (fake) motion features - one per generator. The corresponding discrimination part receives the 2 generated features (`fake0`, `fake1`) and the corresponding real ones (`motion_data_level_x`, `motion_data_level_y`) and returns a score for both.
 
 
 ### Gradual Learning
