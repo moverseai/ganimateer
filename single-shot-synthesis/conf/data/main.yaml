@@ -24,7 +24,7 @@ defaults:
         ]
    - model/monads/geometry/rotation: [euler_to_rotmat, roma_rotmat_to_sixd]
    - model/monads/tensor: alias
-   - model/monads/sampling: [scale_pyramid, interpolate]
+   - model/monads/sampling: interpolate
    - model/monads/generation/tensor: [zeros, random_like]
    - model/monads/human/pose: forward_kinematics
 

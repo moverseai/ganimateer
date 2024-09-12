@@ -2,8 +2,8 @@ defaults:
   ###### ENGINE
   - engine/runner: lightning
   - engine/runner/checkpoint: lightning
-  - engine/modules: [manual_seed, import, rerun, clearml, numpy]
-  - engine/loggers: [tabular, clearml]
+  - engine/modules: [manual_seed, import, numpy]
+  - engine/loggers: tabular
 
   ###### DATA
   - data/train/loader: torch
@@ -91,7 +91,6 @@ defaults:
       ]
 
   ###### MONITOR
-  - src/monitor/visualization: [skeleton3d, multiskeleton3d]
   - src/exporters: bvh
 
   - util

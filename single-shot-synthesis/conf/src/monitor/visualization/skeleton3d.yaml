@@ -1,4 +1,0 @@
-# @package model.monitors.skeleton3d
-
-_target_: src.visualization.skeleton.skeleton3d
-_partial_: true

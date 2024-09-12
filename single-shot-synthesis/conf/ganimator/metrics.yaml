@@ -1,5 +1,8 @@
 # @package _global_
 
+export_filepath: '.'
+bvh_filename: 'generated'
+
 _moai_:
   _definitions_:
     _collections_:
@@ -30,18 +33,10 @@ _moai_:
             gt: [motion_embed_gt]
             _out_: [fid]
       _monitors_:
-        show_skeleton_batch:
-          skeleton3d:
-            kpts: [fk_0_pred.positions]
-            path: [skeletons]
-        show_generated_skeleton:
-          multiskeleton3d:
-            kpts: [fk_0_pred.positions]
-            path: [skeletons]
         export_generated_skeleton:
           bvh:
             output_name: ["${bvh_filename}"]
-            export_path: ["${export_path}"]
+            export_path: ["${export_filepath}"]
             parents: [joint_parents]
             position: [global_root_position_0]
             rotations: [demuxed_joint_euler_0]
@@ -79,21 +74,18 @@ _moai_:
         _batch_:
           _frequency_: 400
           _metrics_: []
-          _monitors_:
-            - show_skeleton_batch
+          _monitors_: []
       _val_:
         _datasets_:
           repeated_npz:
             _frequency_: 1
             _metrics_: #[]
               - features
-            _monitors_:
-              - show_skeleton_batch
+            _monitors_: []
       _test_:
         _datasets_:
           repeated_npz:
             _frequency_: 1
             _metrics_: []
             _monitors_:
-              - show_generated_skeleton
               - export_generated_skeleton

@@ -1,6 +1,6 @@
 # @package _global_
 
-export_filename: "."
+export_filepath: "."
 
 _moai_:
   _definitions_:
@@ -9,7 +9,7 @@ _moai_:
         export_data:
           append_npz:
             path:
-              - ${export_filename}
+              - ${export_filepath}
             keys:
               - - z_star
                 - amps_level_6
