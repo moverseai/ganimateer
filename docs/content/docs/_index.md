@@ -7,14 +7,10 @@ title: Introduction
 
 <!--more-->
 
-## What is GANIMATEER?
-
-GANIMATEER is `...`
-
 ## Features
 
-- **Feature1** - asdf
-- **Feature2** - asdf
+- **Feature1** - Generate variations of a single input 3D animation.
+- **Feature2** - Visualize any 3D animation using a flexible plugin.
 
 ## Questions or Feedback?
 

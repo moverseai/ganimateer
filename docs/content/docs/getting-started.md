@@ -7,11 +7,13 @@ prev: /docs
 
 ## Quick Start / Overview
 
-{{< icon "github" >}}&nbsp;[moverseai/ganimateer/ganimator](https://www.github.com/moverseai/ganimateer/ganimator)
+{{< icon "github" >}}&nbsp;[moverseai/moai](https://www.github.com/moverseai/moai)
 
-<img src="https://docs.github.com/assets/cb-77734/mw-1440/images/help/repository/use-this-template-button.webp" width="500">
+<!-- <img src="https://docs.github.com/assets/cb-77734/mw-1440/images/help/repository/use-this-template-button.webp" width="500">
 
-[🌐 Demo ↗](https://moverseai.github.io/single-shot/)
+[🌐 Demo ↗](https://moverseai.github.io/single-shot/) -->
+
+`moai` is a PyTorch-based AI Model Development Kit (MDK) that aims to improve data-driven model workflows, design and understanding
 
 ## Start as New Project
 
@@ -19,49 +21,42 @@ prev: /docs
 
 {{% steps %}}
 
-### first step
+### Prerequisites
+The following python packages are required for using the supported features and the underlying model development kit:
+
+- Python 3.10
+- PyTorch 2.2.0 (cuda version)
+- Cuda 11.4
+
+### Install `moai`
+Clone the master branch from `moai` [repository](https://github.com/moverseai/moai/) and install it by opening a command line on the source directory and running:
 
 ```shell
-moai run ... --param=yaml
+pip install -e .
 ```
 
-### second step
+### Validate `moai` installation
+To validate that the `moai` mdk has been successfully installed and there is no dependency missing, run the following `MNIST` example from the (outer) `moai` directory:
+
+Train a simple multi-layer perceptron (MLP) using the `MNIST` data:
 
 ```shell
 # train
-moai run ... 
+python -m moai run fit moai/conf/examples/MNIST/main.yaml +DATA_ROOT=path/to/download/and/save/MNIST 
 ```
 
-```yaml
-model:
-  config:
-    - something: 1
+Test the trained by loading its checkpoint:
+```shell
+# test
+python -m moai run test moai/conf/examples/MNIST/main.yaml +DATA_ROOT=path/to/download/and/save/MNIST +CKPT=path/to/trained/model/checkpoint
 ```
-
-### third step
-
-...
-
-The resulting `...`
 
 {{% /steps %}}
 
-
-{{% details title="How to ?" %}}
-
-To `...`
-
-```shell
-cmd line
-```
-
-{{% /details %}}
-
 ## Next
-
-Explore the following sections to start adding more contents:
+Note that `moai` operates as the backbone of the developed tools and plugins, which can be explored in the following sections:
 
 {{< cards >}}
-  {{< card link="../ganimator/configuration" title="GANimator" icon="document-duplicate" >}}
-  {{< card link="../rerun_animation/configuration" title="Rerun Animation" icon="adjustments" >}}
+  {{< card link="../ganimator/" title="GANimator" icon="document-duplicate" >}}
+  {{< card link="../rerun_animation/" title="Rerun Animation" icon="adjustments" >}}
 {{< /cards >}}

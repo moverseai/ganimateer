@@ -1,7 +1,7 @@
 ---
 title: GANimator
 weight: 2
-prev: /docs/getting-started
+prev: /docs/
 next: /docs/ganimator/data_preprocess
 sidebar:
   open: true
