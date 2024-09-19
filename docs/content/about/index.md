@@ -3,7 +3,7 @@ title: About
 toc: false
 ---
 
-**GANIMATEER** proposes the design and implementation of an AI-based post-processing toolset for automating the character animation process, widening the spectrum of its potential users. To achieve this goal, [Moverse](https://moverse.ai/) will leverage the in-house suite of AI-based character animation editing services to ultimately form a guided inversion toolset that will deliver realistic character animations based on user input. The toolset will be offered for experimentation to the EMIL consortium.
+**GANIMATEER** proposes the design and implementation of an AI-based post-processing toolset for automating the character animation process, widening the spectrum of its potential users. To achieve this goal, [Moverse](https://moverse.ai/) will leverage the in-house suite of AI-based character animation editing services to ultimately form a guided inversion toolset that will deliver realistic character animations based on user input. The toolset will be offered for experimentation to the {{< emil-xr-icon >}}EMIL consortium.
 
 ## Team
 We are a team of computer engineers with complementary expertise in the intersection of computer vision, machine learning and graphics:
