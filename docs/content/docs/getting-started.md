@@ -5,17 +5,14 @@ next: /docs/ganimator
 prev: /docs
 ---
 
-## Quick Start / Overview
+## Quick Start / `moai` Setup
 
-{{< icon "github" >}}&nbsp;[moverseai/moai](https://www.github.com/moverseai/moai)
+🗿&nbsp;[moai](https://www.github.com/moverseai/moai) is a PyTorch-based AI Model Development Kit (MDK) that aims to improve data-driven model workflows, design and understanding. 
+
 
 <!-- <img src="https://docs.github.com/assets/cb-77734/mw-1440/images/help/repository/use-this-template-button.webp" width="500">
 
 [🌐 Demo ↗](https://moverseai.github.io/single-shot/) -->
-
-`moai` is a PyTorch-based AI Model Development Kit (MDK) that aims to improve data-driven model workflows, design and understanding
-
-## Start as New Project
 
 #### Steps
 
@@ -24,9 +21,9 @@ prev: /docs
 ### Prerequisites
 The following python packages are required for using the supported features and the underlying model development kit:
 
-- Python 3.10
-- PyTorch 2.2.0 (cuda version)
-- Cuda 11.4
+- {{< python-icon >}}&nbsp;Python 3.10
+- {{< pytorch-icon >}}&nbsp;PyTorch 2.2.0 (cuda version)
+- {{< nvidia-icon >}}&nbsp;Cuda 11.4
 
 ### Install `moai`
 Clone the master branch from `moai` [repository](https://github.com/moverseai/moai/) and install it by opening a command line on the source directory and running:
@@ -47,7 +44,7 @@ python -m moai run fit moai/conf/examples/MNIST/main.yaml +DATA_ROOT=path/to/dow
 
 Test the trained by loading its checkpoint:
 ```shell
-# test
+# train
 python -m moai run test moai/conf/examples/MNIST/main.yaml +DATA_ROOT=path/to/download/and/save/MNIST +CKPT=path/to/trained/model/checkpoint
 ```
 

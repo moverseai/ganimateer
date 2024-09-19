@@ -99,5 +99,5 @@ exporters:
 To generate new motions use the following command:
 
 ```
-python -m moai run test /path/to/ganimator/conf/run/main.yaml --config-dir ./conf model_ckpt=%path/to/trained/GANimator/checkpoint.ckpt% +mdm_ckpt=%path/to/SinMDM/t2m/text_mot_match/model/finest.tar% +out_name=%exported_file_name% +export_dir=%path/to/generated/motions%
+python -m moai run test conf/run/main.yaml model_ckpt=%path/to/trained/GANimator/checkpoint.ckpt% mdm_ckpt=%path/to/SinMDM/t2m/text_mot_match/model/finest.tar% out_name=%exported_file_name% export_dir=%path/to/generated/motions%
 ```

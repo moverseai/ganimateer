@@ -226,5 +226,5 @@ export_data:
 
 The steps above are executed by running the following command:
 ```
-python -m moai run test /path/to/ganimator/conf/bvh2npz/main.yaml --config-dir ./conf bvh_filename=%input_file_name% export_filename=%choose_a_name%
+python -m moai run test conf/bvh2npz/main.yaml bvh_filename=%input_file_name% export_filename=%choose_a_name%
 ```

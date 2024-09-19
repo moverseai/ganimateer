@@ -180,5 +180,5 @@ To visualize the skeleton all we need is the joint positions and the [Mixamo](ht
 
 To train the GANimator model, one should run the following command:
 ```
-python -m moai run fit /path/to/ganimator/conf/run/main.yaml --config-dir ./conf npz_filename=%input_npz_file_name%
+python -m moai run fit conf/run/main.yaml npz_filename=%input_npz_file_name%
 ```
