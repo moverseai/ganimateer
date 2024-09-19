@@ -1,0 +1,6 @@
+# @package model.monads.foot_contact
+
+_target_: src.monads.utils.foot_contact.FootContact
+threshold: ??? # float
+joint_indices: ??? # int[]
+zero_pad: 0

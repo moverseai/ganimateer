@@ -1,0 +1,9 @@
+# @package model.components.gen_s1
+
+_target_: src.components.ganimator.Generator
+parents: ??? # int[]
+contacts: ??? # int[]
+kernel_size: 5
+padding_mode: reflect
+bias: true
+stages: 2

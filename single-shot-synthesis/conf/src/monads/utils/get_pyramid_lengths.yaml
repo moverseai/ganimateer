@@ -1,0 +1,5 @@
+# @package model.monads.get_pyramid_lengths
+
+_target_: src.monads.utils.get_pyramid_lengths.PyramidLengths
+ratio: 0.2
+scale: 1.333

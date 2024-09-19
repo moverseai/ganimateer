@@ -1,0 +1,6 @@
+# @package data.test.iterator.datasets.bvh
+
+_target_: src.data.bvh.BioVisionHierarchyFile
+filename: ???
+subset: null
+scale: 1.0

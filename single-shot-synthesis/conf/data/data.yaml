@@ -1,0 +1,45 @@
+# @package _global_
+
+bvh_filename: ???
+bvh_subset:
+  [
+    0,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    1,
+    2,
+    3,
+    4,
+    5,
+    7,
+    8,
+    9,
+    10,
+    31,
+    32,
+    33,
+    34,
+  ]
+bvh_scale: 0.01
+bvh_fps: 30
+
+data:
+  test:
+    loader:
+      shuffle: false
+      drop_last: false
+    iterator:
+      datasets:
+        bvh:
+          filename: ${bvh_filename}
+          subset: ${bvh_subset}
+          scale: ${bvh_scale}
+          fps: ${bvh_fps}

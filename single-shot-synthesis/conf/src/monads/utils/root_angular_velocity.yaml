@@ -1,0 +1,4 @@
+# @package model.monads.root_angular_velocity
+
+_target_: src.monads.utils.root_velocity.AngularVelocity
+zero_pad: true #bool

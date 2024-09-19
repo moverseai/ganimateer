@@ -1,0 +1,6 @@
+# @package model.monads.index_root
+
+_target_: moai.monads.masking.Index
+indices: 0
+dim: -2
+persistent: true

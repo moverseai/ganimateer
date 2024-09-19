@@ -1,0 +1,3 @@
+# @package model.monads.create_mdm_repr
+
+_target_: src.monads.utils.create_mdm_representation.MDMRepresentation

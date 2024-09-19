@@ -1,0 +1,4 @@
+# @package model.metrics.gdiv
+
+_target_: src.metrics.generation.ganimator_metrics.GlobalDiversity
+tmin: 30 # int

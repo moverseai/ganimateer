@@ -1,0 +1,175 @@
+# @package _global_
+
+DISC_FREQ: 5
+GEN_FREQ: 1
+REC_FREQ: 1
+
+_moai_:
+  _definitions_:
+    _collections_:
+      _optimizers_:
+        optim_disc: &optim_disc_template
+          _type_: adam
+          _params_:
+            lr: 1e-4
+          _groups_: [disc_s1]
+        optim_gen: &optim_gen_template
+          _type_: adam
+          _params_:
+            lr: 1e-4
+          _groups_: [gen_s1]
+        optim_disc_stage_1:
+          <<: *optim_disc_template
+          _groups_: [disc_s2]
+        optim_gen_stage_1:
+          <<: *optim_gen_template
+          _groups_: [gen_s2]
+        optim_disc_stage_2:
+          <<: *optim_disc_template
+          _groups_: [disc_s3]
+        optim_gen_stage_2:
+          <<: *optim_gen_template
+          _groups_: [gen_s3]
+        optim_disc_stage_3:
+          <<: *optim_disc_template
+          _groups_: [disc_s4]
+        optim_gen_stage_3:
+          <<: *optim_gen_template
+          _groups_: [gen_s4]
+      _objectives_:
+        discriminate:
+          disc_wasserstein:
+            real: [real_score.stage0, real_score.stage1]
+            fake: [fake_score.stage0, fake_score.stage1]
+            _weight_:
+              - 1.0
+              - 1.0
+            _reduction_: [sum, sum]
+            _out_: [D_0, D_1]
+          gradient_penalty:
+            blended_samples: [interpolated_0, interpolated_1]
+            blended_scores:
+              [interpolated_score.stage0, interpolated_score.stage1]
+            _weight_:
+              - 1.0
+              - 1.0
+            _out_: [GP_0, GP_1]
+        discriminate_last:
+          disc_wasserstein:
+            real: [real_score.stage0]
+            fake: [fake_score.stage0]
+            _weight_:
+              - 1.0
+            _reduction_: [sum]
+            _out_: [D_0]
+          gradient_penalty:
+            blended_samples: [interpolated_0]
+            blended_scores: [interpolated_score.stage0]
+            _weight_:
+              - 1.0
+            _out_: [GP_0]
+        sample:
+          gen_wasserstein:
+            fake: [fake_score.stage0, fake_score.stage1]
+            _weight_:
+              - 1.0
+              - 1.0
+            _reduction_: [sum, sum]
+            _out_: [fake_G_0, fake_G_1]
+          velocity:
+            pred: [demuxed_0.contact_labels, demuxed_1.contact_labels]
+            gt: [velocities_0, velocities_1]
+            _weight_: [5.0, 5.0]
+            _out_: [foot_consistency_0, foot_consistency_1]
+        sample_last:
+          gen_wasserstein:
+            fake: [fake_score.stage0]
+            _weight_:
+              - 1.0
+            _reduction_: [sum]
+            _out_: [fake_G_0]
+          velocity:
+            pred: [demuxed_0.contact_labels]
+            gt: [velocities_0]
+            _weight_: [5.0]
+            _out_: [foot_consistency_0]
+        reco:
+          L1:
+            gt:
+              - motion_data_level_x
+              - motion_data_level_y
+            pred:
+              - fake.stage0
+              - fake.stage1
+            _weight_:
+              - 50.0
+              - 50.0
+            _out_: [rec_0, rec_1]
+        reco_last:
+          L1:
+            gt:
+              - motion_data_level_x
+            pred:
+              - fake.stage0
+            _weight_:
+              - 50.0
+            _out_: [rec_0]
+  _execution_:
+    _initialize_:
+      _test_:
+        _setup_: [partial]
+    _lightning_step_:
+      _fit_:
+        _stages_:
+          process_disc:
+            _optimizer_: optim_disc
+            _iterations_: ${DISC_FREQ}
+            _objective_: discriminate
+            _flows_:
+              - horizontal_input_mapping
+              - stage_1
+              - gen_s1
+              - disc_prediscrimination
+              - disc_s1
+          process_sample:
+            _optimizer_: optim_gen
+            _iterations_: ${GEN_FREQ}
+            _objective_: sample
+            _flows_:
+              - horizontal_input_mapping
+              - stage_1
+              - gen_s1
+              - sample_prediscrimination
+              - disc_s1
+          process_reco:
+            _optimizer_: optim_gen
+            _iterations_: ${REC_FREQ}
+            _objective_: reco
+            _flows_:
+              - horizontal_input_mapping
+              - stage_1
+              - stage_1_reco
+              - gen_s1
+              - reco_prediscrimination
+      _val_:
+        _datasets_:
+          repeated_npz:
+            _flows_:
+              - stage_1_val
+              - gen_s1
+              - val_prediscrimination
+              - val_prediscrimination_post
+      _test_:
+        _datasets_:
+          repeated_npz:
+            _flows_:
+              - stage_1_val
+              - gen_s1
+              - stage_2_val
+              - gen_s2
+              - stage_3_val
+              - gen_s3
+              - stage_4_val
+              - gen_s4
+              - val_prediscrimination_last
+              - test_prediscrimination_post

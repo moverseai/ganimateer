@@ -1,0 +1,53 @@
+# @package model.monads.to_smplh
+
+_target_: src.monads.utils.smplh.ToSMPLH
+from_joint_number: ???
+mapping: ???
+
+    # 0 mixamorig7:Hips
+    # 1 mixamorig7:LeftUpLeg
+    # 2 mixamorig7:LeftLeg
+    # 3 mixamorig7:LeftFoot
+    # 4 mixamorig7:LeftToeBase
+    # 5 mixamorig7:LeftToe_End
+    # 6 mixamorig7:RightUpLeg
+    # 7 mixamorig7:RightLeg
+    # 8 mixamorig7:RightFoot
+    # 9 mixamorig7:RightToeBase
+    # 10 mixamorig7:RightToe_End
+    # 11 mixamorig7:Spine
+    # 12 mixamorig7:Spine1
+    # 13 mixamorig7:Spine2
+    # 14 mixamorig7:Neck
+    # 15 mixamorig7:Head
+    # 16 mixamorig7:LeftShoulder
+    # 17 mixamorig7:LeftArm
+    # 18 mixamorig7:LeftForeArm
+    # 19 mixamorig7:LeftHand
+    # 20 mixamorig7:RightShoulder
+    # 21 mixamorig7:RightArm
+    # 22 mixamorig7:RightForeArm
+    # 23 mixamorig7:RightHand
+
+    # 'pelvis',
+    # 'left_hip',
+    # 'right_hip',
+    # 'spine1',
+    # 'left_knee',
+    # 'right_knee',
+    # 'spine2',
+    # 'left_ankle',
+    # 'right_ankle',
+    # 'spine3',
+    # 'left_foot',
+    # 'right_foot',
+    # 'neck',
+    # 'left_collar',
+    # 'right_collar',
+    # 'head',
+    # 'left_shoulder',
+    # 'right_shoulder',
+    # 'left_elbow',
+    # 'right_elbow',
+    # 'left_wrist',
+    # 'right_wrist',

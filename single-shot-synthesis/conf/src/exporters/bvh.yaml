@@ -1,0 +1,4 @@
+# @package model.monitors.bvh
+
+_target_: src.exporters.bvh.bvh_export
+_partial_: true

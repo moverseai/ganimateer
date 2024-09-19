@@ -1,0 +1,4 @@
+# @package model.monads.create_random_clips
+
+_target_: src.monads.utils.create_clips.CreateRandomClips
+window_size: ???

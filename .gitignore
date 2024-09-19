@@ -159,9 +159,23 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+
 # Hugo
 resources/
 public/
 jsconfig.json
 node_modules/
 .hugo_build.lock
+
+## We generally ignore all files and add explicit exclusion rules for subprojects that need them
+*.npz
+*.json
+*.bvh
+
+## HYDRA
+actions
+outputs
+output
+scripts
+ckpts
+checkpoints

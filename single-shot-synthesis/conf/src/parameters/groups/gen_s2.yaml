@@ -1,0 +1,5 @@
+# @package model.parameters.groups.gen_s2
+
+_target_: moai.parameters.selectors.model.ModelParameterSelector
+modules:
+  - gen_s2

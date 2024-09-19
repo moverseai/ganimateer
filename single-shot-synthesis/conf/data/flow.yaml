@@ -1,0 +1,139 @@
+# @package _global_
+
+foot_contact_threshold: 0.018
+
+model:
+  monads:
+    simple_velocity:
+      zero_pad: false
+    foot_contact:
+      threshold: ${foot_contact_threshold}
+      joint_indices: [4, 5, 9, 10]
+      zero_pad: 5 # ganimator specific
+    forward_kinematics:
+      parents: null
+    interpolate:
+      width: 1
+      height: 1
+      align_corners: false
+      mode: linear
+
+_moai_:
+  _execution_:
+    _lightning_step_:
+      _test_:
+        _datasets_:
+          bvh:
+            _flows_:
+              - preprocess
+  _definitions_:
+    _flows_:
+      preprocess:
+        deg2rad:
+          degrees: [joint_rotations]
+          _out_: [joint_rotations_rads]
+        euler_to_rotmat:
+          euler: [joint_rotations_rads]
+          _out_: [joint_rotation_matrices]
+        forward_kinematics:
+          parents: [joint_parents]
+          offsets: [joint_offsets]
+          rotation: [joint_rotation_matrices]
+          position: [root_position]
+          _out_: [fk]
+        simple_velocity:
+          positions: [fk.positions]
+          _out_: [joint_velocities]
+        foot_contact:
+          velocity: [joint_velocities]
+          _out_: [contact_labels]
+        roma_rotmat_to_sixd:
+          matrix: [joint_rotation_matrices]
+          _out_: [joint_rotations_sixd]
+        root_features:
+          position: [root_position]
+          _out_: [root_features]
+        _mi_add_zeros:
+          expression:
+            - ${mi:"zeros(root_position)"}
+            - ${mi:"flatten(joint_rotations_sixd, 2)"}
+            - ${mi:"flatten(contact_labels.padded, 2)"}
+            - ${mi:"cat(joint_rotations_sixd_flat, contact_labels_flat, root_features, zero_position, -1)"}
+          _out_:
+            - zero_position
+            - joint_rotations_sixd_flat
+            - contact_labels_flat
+            - motion_data
+        get_pyramid_lengths:
+          tensor:
+            - ${mi:"transpose(motion_data, -2, -1)"} # motion_data_T
+          _out_: [motion_data_pyramid]
+        _mi_alias:
+          expression:
+            - ${mi:"transpose(motion_data, -2, -1)"}
+            - motion_data_pyramid.level_6
+            - motion_data_pyramid.level_5
+            - motion_data_pyramid.level_4
+            - motion_data_pyramid.level_3
+            - motion_data_pyramid.level_2
+            - motion_data_pyramid.level_1
+            - contact_labels.raw
+          _out_:
+            - motion_data_level_6
+            - motion_data_level_5
+            - motion_data_level_4
+            - motion_data_level_3
+            - motion_data_level_2
+            - motion_data_level_1
+            - motion_data_level_0
+            - contact_labels_raw
+        interpolate:
+          image:
+            - motion_data_level_5
+            - motion_data_level_4
+            - motion_data_level_3
+            - motion_data_level_2
+            - motion_data_level_1
+            - motion_data_level_0
+          target:
+            - motion_data_level_6
+            - motion_data_level_5
+            - motion_data_level_4
+            - motion_data_level_3
+            - motion_data_level_2
+            - motion_data_level_1
+          _out_:
+            - motion_data_level_6_recon
+            - motion_data_level_5_recon
+            - motion_data_level_4_recon
+            - motion_data_level_3_recon
+            - motion_data_level_2_recon
+            - motion_data_level_1_recon
+        noise_scale:
+          target:
+            - motion_data_level_6
+            - motion_data_level_5
+            - motion_data_level_4
+            - motion_data_level_3
+            - motion_data_level_2
+            - motion_data_level_1
+            - motion_data_level_0
+          reconstructed:
+            - motion_data_level_6_recon
+            - motion_data_level_5_recon
+            - motion_data_level_4_recon
+            - motion_data_level_3_recon
+            - motion_data_level_2_recon
+            - motion_data_level_1_recon
+            - ${mi:"zeros(motion_data_level_0)"}
+          _out_:
+            - amps_level_6
+            - amps_level_5
+            - amps_level_4
+            - amps_level_3
+            - amps_level_2
+            - amps_level_1
+            - amps_level_0
+        random_like:
+          tensor: [motion_data_level_0]
+          _out_: [z_star]

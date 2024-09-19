@@ -1,0 +1,4 @@
+# @package model.monads.integrate_velocity
+
+_target_: src.monads.utils.integrate_velocity.IntegrateVelocity
+ignore_y: true # bool

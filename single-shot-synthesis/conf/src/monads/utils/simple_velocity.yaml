@@ -1,0 +1,4 @@
+# @package model.monads.simple_velocity
+
+_target_: src.monads.utils.simple_velocity.SimpleVelocity
+zero_pad: true # bool

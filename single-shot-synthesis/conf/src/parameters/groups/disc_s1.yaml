@@ -1,0 +1,5 @@
+# @package model.parameters.groups.disc_s1
+
+_target_: moai.parameters.selectors.model.ModelParameterSelector
+modules:
+  - disc_s1

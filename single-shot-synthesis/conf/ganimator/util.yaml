@@ -1,0 +1,21 @@
+# @package _global_
+
+CKPT: "."
+
+experiment:
+  batch_size: 1
+  workers: 0
+  name: ganimator_experiment
+
+engine:
+  runner:
+    deterministic: false # required for index add ops
+    gpus: [0]
+    devices: 1
+    num_sanity_val_steps: 0
+    max_epochs: 4
+    checkpoint:
+      monitor: fid/repeated_npz
+      mode: min
+      filename: "{epoch}-{fid/repeated_npz:.8f}"
+      save_weights_only: true

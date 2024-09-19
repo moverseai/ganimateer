@@ -1,0 +1,9 @@
+# @package model.components.disc_s4
+
+_target_: src.components.ganimator.Discriminator
+parents: ??? # int[]
+contacts: ??? # int[]
+kernel_size: 5
+padding_mode: reflect
+bias: true
+stages: 1
