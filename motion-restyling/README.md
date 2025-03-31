@@ -35,8 +35,8 @@ To train the model on the 100Style dataset, execute the following command:
 
 ```bash
 moai run fit conf/hundred/main.yaml \
-  ++DATA_ROOT=<PATH_TO_100_STYLE> \
-  ++SMPL_MODELS_ROOT=<PATH_TO_SMPL_BODY_ARTIFACTS> \
+  +DATA_ROOT=<PATH_TO_100_STYLE> \
+  +SMPL_MODELS_ROOT=<PATH_TO_SMPL_BODY_ARTIFACTS> \
   +CRITIC_REAL_W=1.0 +CRITIC_FAKE_W=1.0 \
   +LATENT_DIM=32 +ENCODER_LAYER_NUM=2 +DECODER_LAYER_NUM=4 \
   +NEUTRAL_LAYER_NUM=4 +STYLE_LAYER_NUM=6 \
@@ -53,8 +53,8 @@ To test the model and visualize the results using rerun, run the following comma
 
 ```bash
 moai run test conf/hundred/main.yaml \
-  ++DATA_ROOT=<PATH_TO_100_STYLE> \
-  ++SMPL_MODELS_ROOT=<PATH_TO_SMPL_BODY_ARTIFACTS> \
+  +DATA_ROOT=<PATH_TO_100_STYLE> \
+  +SMPL_MODELS_ROOT=<PATH_TO_SMPL_BODY_ARTIFACTS> \
   +CRITIC_REAL_W=1.0 +CRITIC_FAKE_W=1.0 \
   +LATENT_DIM=32 +ENCODER_LAYER_NUM=2 +DECODER_LAYER_NUM=4 \
   +NEUTRAL_LAYER_NUM=4 +STYLE_LAYER_NUM=6 \
