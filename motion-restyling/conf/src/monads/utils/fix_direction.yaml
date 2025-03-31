@@ -1,0 +1,3 @@
+# @package model.monads.fix_direction
+
+_target_: src.monads.utils.fix_rotation.FixRotation

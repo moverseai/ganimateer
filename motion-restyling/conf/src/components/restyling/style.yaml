@@ -1,0 +1,9 @@
+# @package model.components.style
+
+_target_: src.components.temporal.restyle.style.StyleTransfer
+configuration:
+  num_styles: 2
+  in_features: ${LATENT_DIM} # 32
+  hidden_features: ${LATENT_DIM}
+  blocks: ${STYLE_LAYER_NUM}
+  batch_first: true

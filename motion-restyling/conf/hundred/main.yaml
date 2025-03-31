@@ -1,0 +1,80 @@
+defaults:
+  ###### ENGINE
+  - engine/runner: lightning
+  - engine/modules: [import, manual_seed, rerun, numpy]
+  ###### LOGGERS
+  - engine/loggers: tabular
+
+  ###### CHECKPOINT
+  - engine/runner/checkpoint: lightning
+
+  # ###### DATA
+  - data/train/loader: torch
+  - data/train/iterator: window
+  - data/train/augmentation: none
+  - src/data/train: [hundred]
+
+  - data/val/loader: torch
+  - data/val/iterator: window
+  - data/val/augmentation: none
+  - src/data/val: [hundred]
+
+  - data/test/loader: torch
+  - data/test/iterator: window
+  - data/test/augmentation: none
+  - src/data/test: [hundred]
+
+  # ###### MODEL
+  - model: moai
+  - model/components/encoder: [mlp]
+  - src/components/restyling: [neutral, style]
+  - model/components/decoder: [mlp]
+  - src/components/restyling: [discriminator]
+  # ###### MONADS
+  - src/monads/body:
+      [
+        blendshape_mesh,
+        body_model_data_dynamic,
+        landmark_offsets,
+        apply_inverse_bind,
+        skinning,
+      ]
+  - model/monads/human/pose: [forward_kinematics]
+  - model/monads/generation/tensor: [identity]
+  - model/monads/geometry/rotation:
+      [rotvec_to_rotmat, roma_unitquat_to_rotvec, roma_rotvec_to_unitquat]
+  - src/monads/utils: [foot_contact, force_grad, fix_direction, quaternion_norm, z_fwd]
+
+  # ###### PARAMETERS
+  - model/parameters/initializers: [default, partial]
+  - model/parameters/optimizers: [adam]
+  - discriminator
+  - generator
+
+  # ###### SUPERVISION
+  - model/objectives/regression: [L2, MSE]
+  - src/objectives: [quat_diff]
+  - src/objectives: [gradient_penalty]
+
+  # ###### VALIDATION
+  - model/metrics: [rmse]
+
+  # ###### VISUALIZATION
+  - src/monitor/visualization: [skeleton3d, mesh3d]
+  - model/monitors/visualization/rerun: [optimization_losses]
+
+  ###### EXPORTERS
+
+  # ###### EXTRA FILES
+  - default_smpl
+  - dynamic_definitions
+  - model
+  - options
+  - monitor
+  - data
+  - objectives
+  - processes_flows
+
+  ###### HYDRA
+  - override hydra/hydra_logging: moai
+  - override hydra/job_logging: moai

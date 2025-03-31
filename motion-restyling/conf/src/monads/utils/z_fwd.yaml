@@ -1,0 +1,7 @@
+# @package model.monads.z_fwd
+
+_target_: src.monads.utils.fix_rotation.FaceZFwd
+left_hip: 1 # counting from zero
+right_hip: 2
+left_shoulder: 16
+right_shoulder: 17

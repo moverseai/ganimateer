@@ -1,0 +1,5 @@
+# @package data.train.iterator.datasets.xia
+
+_target_: src.data.xia.MotionDataset
+data_path: ???
+subset_name: train

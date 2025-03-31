@@ -1,0 +1,9 @@
+# @package model.components.discriminator
+
+_target_: src.components.temporal.restyle.discriminator.Discriminator
+configuration:
+  in_features: 138 # velocity + position
+  episode_length: ${oc.decode:${oc.env:MOVERSE_WINDOW_SIZE}}
+  blocks: 4 # discriminator layer num
+  attention_dim: 3 # dim style (including neutral?) + dim content
+  feature_dim: 16

@@ -1,0 +1,3 @@
+# @package model.monads.apply_inverse_bind
+
+_target_: src.monads.body.skinning.ApplyInverseBind

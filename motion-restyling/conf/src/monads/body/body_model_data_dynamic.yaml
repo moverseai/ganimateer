@@ -1,0 +1,5 @@
+# @package model.monads.body_model_data_dynamic
+
+_target_: src.monads.body.models.MultiBodyModelData
+config: ???
+persistent: true

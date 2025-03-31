@@ -1,0 +1,103 @@
+# @package _global_
+
+chosen_joints:
+  [0, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 15, 16, 18, 19, 20, 22, 25, 26, 27, 29]
+
+chosen_joints_wo_root:
+  [2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 15, 16, 18, 19, 20, 22, 25, 26, 27, 29]
+model:
+  # parameters:
+  #   initializers:
+  #     pretrained:
+  #       filename: ${CKPT}
+  components:
+    encoder:
+      configuration:
+        in_features: 260 # rotation (96=24x4),  position (69=23x3), velocity (69=23x3), style (6 ** depends on the dataset), content (1 ** depends on the dataset), contact (4 ** depends on the dataset)
+        hidden_features: 130
+        out_features: ${LATENT_DIM} # 32
+        blocks: ${ENCODER_LAYER_NUM}
+        linear: #TODO: add bias
+          type: linear
+          activation:
+            type: relu
+        prediction: # NOTE: No activation in the last layer of the original implementation
+          type: linear
+          activation:
+            type: none
+
+    neutral:
+      configuration:
+        in_features: ${LATENT_DIM} # 32
+        hidden_features: ${LATENT_DIM}
+        blocks: ${NEUTRAL_LAYER_NUM}
+        batch_first: true
+        content_num: 5
+    style:
+      configuration:
+        in_features: ${LATENT_DIM} # 32
+        hidden_features: ${LATENT_DIM}
+        blocks: ${STYLE_LAYER_NUM}
+        batch_first: true
+        num_styles: 7
+
+    discriminator:
+      configuration:
+        in_features: 120 # velocity + position
+        episode_length: ${EPISODE_LENGTH}
+        blocks: 2
+        attention_dim: 12 # style + content
+
+    decoder:
+      configuration:
+        in_features: 39 # latent_code + different styles
+        hidden_features: 130 #${LAYER_DIM}
+        out_features: 124 # rotation (24x4) outputs only rotation, the other should be extra mlps if needed
+        blocks: ${DECODER_LAYER_NUM} # decoder layer num
+        linear:
+          type: linear
+          activation:
+            type: relu
+        prediction:
+          type: linear
+          activation:
+            type: none
+  monads:
+    foot_contact:
+      threshold: 0.05
+      joint_indices: [6, 9, 7, 10]
+    forward_kinematics:
+      parents:
+        [
+          -1,
+          0,
+          1,
+          2,
+          3,
+          4,
+          0,
+          6,
+          7,
+          8,
+          9,
+          0,
+          11,
+          12,
+          13,
+          14,
+          15,
+          13,
+          17,
+          18,
+          19,
+          20,
+          21,
+          20,
+          13,
+          24,
+          25,
+          26,
+          27,
+          28,
+          27,
+        ]

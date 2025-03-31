@@ -1,0 +1,52 @@
+# @package _global_
+
+data:
+  train:
+    loader:
+      shuffle: true
+      drop_last: true
+    iterator:
+      window_size: ${EPISODE_LENGTH}
+      stride: ${EPISODE_STRIDE}
+      datasets:
+        hundred:
+          root: ${DATA_ROOT}
+          styles:
+            - Neutral
+            - ${STYLE_TO_TRANSFER}
+          movements_type: ["FW"]
+          sequence_ids: ["02"]
+          fix_rotation: true
+  test:
+    loader:
+      shuffle: false
+      batch_size: 1
+      # drop_last: true
+    iterator:
+      window_size: ${EPISODE_LENGTH}
+      stride: ${EPISODE_STRIDE}
+      datasets:
+        hundred:
+          root: ${DATA_ROOT}
+          styles:
+            - Neutral
+            - ${STYLE_TO_TRANSFER}
+          movements_type: ["FW"]
+          sequence_ids: ["05"]
+          fix_rotation: true
+       
+  val:
+    loader:
+      shuffle: false
+    iterator:
+      window_size: ${EPISODE_LENGTH}
+      stride: ${EPISODE_STRIDE}
+      datasets:
+        hundred:
+          root: ${DATA_ROOT}
+          styles:
+            - Neutral
+            - ${STYLE_TO_TRANSFER}
+          movements_type: ["FW"]
+          sequence_ids: ["05"]
+          fix_rotation: true

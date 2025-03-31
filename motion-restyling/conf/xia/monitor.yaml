@@ -1,0 +1,73 @@
+# @package _global_
+
+_moai_:
+  _definitions_:
+    _collections_:
+      _monitors_:
+        show_generator:
+          skeleton3d:
+            kpts: [rec_fk_positions_first_batch, gt_joints_first_batch, gen_fk_positions_first_batch]
+            input_style: [input_style_first_batch, input_style_first_batch, input_style_first_batch]
+            transferred_style:
+              [input_style_first_batch, input_style_first_batch, transferred_style_first_batch]
+            path: [/fit/body/skeleton/rec/, /fit/body/skeleton/gt/, /fit/body/skeleton/gen/]
+            color: [purple, green, orange]
+            style_labels:
+              - [
+                "angry",
+                "childlike",
+                "depressed",
+                "old",
+                "proud",
+                "sexy",
+                "strutting",
+              ]
+              - [
+                "angry",
+                "childlike",
+                "depressed",
+                "old",
+                "proud",
+                "sexy",
+                "strutting",
+              ]
+              - [
+                "angry",
+                "childlike",
+                "depressed",
+                "old",
+                "proud",
+                "sexy",
+                "strutting",
+              ]
+            parents:
+              - ${model.monads.forward_kinematics.parents}
+              - ${model.monads.forward_kinematics.parents}
+              - ${model.monads.forward_kinematics.parents}
+          optimization_losses:
+            _params_:
+              path: /plots
+              keys: [loss_fake, loss_position, loss_velocity, loss_quat, loss_adversarial]
+        show_optim_step:
+          optimization_losses:
+            _params_:
+              path: /plots
+              keys: [loss_real, loss_fake, loss_gp]
+        test_visualisation:
+          skeleton3d:
+            kpts: [joint_positions]
+            path: [/gt/joints3d]
+            color: [red]
+            parents:
+              - ${model.monads.forward_kinematics.parents}
+
+  _execution_:
+    _monitoring_:
+      _fit_:
+        _batch_:
+          _frequency_: 80
+          _monitors_: [show_optim_step, show_generator]
+      _test_:
+        _datasets_:
+          hundred:
+            _monitors_: [test_visualisation]

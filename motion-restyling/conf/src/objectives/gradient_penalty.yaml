@@ -1,0 +1,4 @@
+# @package model.objectives.gradient_penalty
+
+_target_: src.supervision.restyling.gradient_penalty.GradientPenalty
+mode: mean

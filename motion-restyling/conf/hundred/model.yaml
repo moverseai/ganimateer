@@ -1,0 +1,134 @@
+# @package _global_
+
+parents_for_viz:
+  [-1, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19]
+
+model:
+  parameters:
+    initializers:
+      partial:
+        named_components.encoder:
+          from: ${CKPT}
+          keys: ["named_components.encoder.*"]
+          strict: true
+          replace:
+            - source: named_components.encoder.
+              target: ""
+        named_components.neutral:
+          from: ${CKPT}
+          keys: ["named_components.neutral.*"]
+          strict: true
+          replace:
+            - source: named_components.neutral.
+              target: ""
+        named_components.style:
+          from: ${CKPT}
+          keys: ["named_components.style.*"]
+          strict: true
+          replace:
+            - source: named_components.style.
+              target: ""
+        named_components.decoder:
+          from: ${CKPT}
+          keys: ["named_components.decoder.*"]
+          strict: true
+          replace:
+            - source: named_components.decoder.
+              target: ""
+      # pretrained:
+      #   filename: ${CKPT}
+      #   strict: true
+  components:
+    encoder:
+      configuration:
+        in_features: 224
+        hidden_features: 122
+        out_features: ${LATENT_DIM} # 32
+        blocks: ${ENCODER_LAYER_NUM}
+        linear: #TODO: add bias
+          type: linear
+          activation:
+            type: relu
+            # parameters:
+            # negative_slope: 0.02
+        prediction: # NOTE: No activation in the last layer of the original implementation
+          type: linear
+          activation:
+            type: none
+
+    neutral:
+      configuration:
+        in_features: ${LATENT_DIM} # 32
+        hidden_features: ${LATENT_DIM}
+        blocks: ${NEUTRAL_LAYER_NUM}
+        batch_first: true
+        content_num: 1
+    style:
+      configuration:
+        in_features: ${LATENT_DIM} # 32
+        hidden_features: ${LATENT_DIM}
+        blocks: ${STYLE_LAYER_NUM}
+        batch_first: true
+        num_styles: 1
+
+    discriminator:
+      configuration:
+        in_features: 126 # velocity + position
+        episode_length: ${EPISODE_LENGTH}
+        blocks: 6
+        attention_dim: 2 # style + content
+
+    decoder:
+      configuration:
+        in_features: 33 # latent_code + different styles
+        hidden_features: 90 #${LAYER_DIM}
+        out_features: 92 # rotation (24x4) outputs only rotation, the other should be extra mlps if needed
+        blocks: ${DECODER_LAYER_NUM} # decoder layer num
+        linear:
+          type: linear
+          activation:
+            type: relu
+            # parameters:
+            #   negative_slope: 0.02
+        prediction:
+          type: linear
+          activation:
+            type: none
+  monads:
+    foot_contact:
+      threshold: 0.05
+      joint_indices: [6, 9, 7, 10]
+    body_model_data_dynamic:
+      config: ${body_model_data_dynamic_specs}
+      persistent: true
+    landmark_regressor_dynamic:
+      config: ${landmark_regressor_dynamic_specs}
+    landmark_offsets:
+      preserve_root: true
+      parents: none
+    forward_kinematics:
+      parents:
+        - -1
+        - 0
+        - 0
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 9
+        - 9
+        - 12
+        - 13
+        - 14
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
