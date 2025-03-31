@@ -1,0 +1,56 @@
+# @package _global_
+
+_moai_:
+  _definitions_:
+    _collections_:
+      _objectives_:
+        train_generator:
+          L2:
+            pred: [rec_positions_wo_root, rec_velocity_wo_root]
+            gt: [gt_joints_viewed, velocity_wo_root]
+            _weight_:
+              - ${POSE_W}
+              - ${VELOCITY_W}
+            _reduction_: [mean, mean]
+            _out_: [loss_position, loss_velocity]
+          quat_diff:
+            gt: [joint_rotations_quat]
+            pred: [rec_joint_rotations_quat]
+            _weight_:
+              - ${QUAT_W}
+            _reduction_: [mean]
+            _out_: [loss_quat]
+          MSE:
+            pred: [fake_scores]
+            gt: [gt_zero_scores]
+            _weight_:
+              - ${ADVERSARIAL_W}
+            _reduction_: [mean]
+            _out_: [loss_adversarial]
+        train_discriminator:
+          MSE: # critic loss
+            pred: [real_scores, fake_scores]
+            gt: [gt_real_scores, gt_fake_scores]
+            _weight_:
+              - ${CRITIC_REAL_W}
+              - ${CRITIC_FAKE_W}
+            _reduction_: [mean, mean]
+            _out_: [loss_real, loss_fake]
+          gradient_penalty:
+            inputs: [input_disc]
+            scores: [real_scores]
+            _weight_:
+              - ${GRADIENT_PENALTY_W}
+            _reduction_: [mean]
+            _out_: [loss_gp]
+      _optimizers_:
+        train_discriminator:
+          _type_: adam
+          _params_:
+            lr: 5e-5 #0.01
+          _groups_: [discriminator]
+        train_generator:
+          _type_: adam
+          _params_:
+            lr: 1e-4
+          _groups_: [generator]

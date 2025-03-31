@@ -1,0 +1,65 @@
+
+body_model_data_dynamic_specs:
+  smpl_male:
+    body_type: smpl
+    filename: "${SMPL_MODELS_ROOT}/models/smpl_cleaned/models/basicmodel_m_lbs_10_207_0_v1.1.0.pkl"
+  smpl_female:
+    body_type: smpl
+    filename: "${SMPL_MODELS_ROOT}/models/smpl_cleaned/models/basicmodel_f_lbs_10_207_0_v1.1.0.pkl"
+
+landmark_regressor_dynamic_specs:
+  smpl_male:
+    data_file: ${SMPL_MODELS_ROOT}/bdtk/smpl_landmarks_male.npz
+    landmarks:
+      - smpl/kinematic_tree/pelvis # 0
+      - smpl/kinematic_tree/left_hip # 1
+      - smpl/kinematic_tree/right_hip # 2
+      - smpl/kinematic_tree/spine1 # 3
+      - smpl/kinematic_tree/left_knee # 4
+      - smpl/kinematic_tree/right_knee # 5
+      - smpl/kinematic_tree/spine2 # 6
+      - smpl/kinematic_tree/left_ankle # 7
+      - smpl/kinematic_tree/right_ankle # 8
+      - smpl/kinematic_tree/spine3 # 9
+      - smpl/kinematic_tree/left_foot # 10
+      - smpl/kinematic_tree/right_foot # 11
+      - smpl/kinematic_tree/neck # 12
+      - smpl/kinematic_tree/left_collar # 13
+      - smpl/kinematic_tree/right_collar # 14
+      - smpl/kinematic_tree/head # 15
+      - smpl/kinematic_tree/left_shoulder # 16
+      - smpl/kinematic_tree/right_shoulder # 17
+      - smpl/kinematic_tree/left_elbow # 18
+      - smpl/kinematic_tree/right_elbow # 19
+      - smpl/kinematic_tree/left_wrist # 20
+      - smpl/kinematic_tree/right_wrist # 21
+      - smpl/kinematic_tree/left_hand # 22
+      - smpl/kinematic_tree/right_hand # 23
+
+  smpl_female:
+    data_file: ${SMPL_MODELS_ROOT}/bdtk/smpl_landmarks_female.npz
+    landmarks:
+      - smpl/kinematic_tree/pelvis # 0
+      - smpl/kinematic_tree/left_hip # 1
+      - smpl/kinematic_tree/right_hip # 2
+      - smpl/kinematic_tree/spine1 # 3
+      - smpl/kinematic_tree/left_knee # 4
+      - smpl/kinematic_tree/right_knee # 5
+      - smpl/kinematic_tree/spine2 # 6
+      - smpl/kinematic_tree/left_ankle # 7
+      - smpl/kinematic_tree/right_ankle # 8
+      - smpl/kinematic_tree/spine3 # 9
+      - smpl/kinematic_tree/left_foot # 10
+      - smpl/kinematic_tree/right_foot # 11
+      - smpl/kinematic_tree/neck # 12
+      - smpl/kinematic_tree/left_collar # 13
+      - smpl/kinematic_tree/right_collar # 14
+      - smpl/kinematic_tree/head # 15
+      - smpl/kinematic_tree/left_shoulder # 16
+      - smpl/kinematic_tree/right_shoulder # 17
+      - smpl/kinematic_tree/left_elbow # 18
+      - smpl/kinematic_tree/right_elbow # 19
+      - smpl/kinematic_tree/left_wrist # 20
+      - smpl/kinematic_tree/right_wrist # 21
+      - smpl/kinematic_tree/left_hand # 22
+      - smpl/kinematic_tree/right_hand # 23

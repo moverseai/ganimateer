@@ -1,0 +1,7 @@
+# @package data.train.iterator.datasets.hundred
+
+_target_: src.data.hundred_style.HundredStyleDataset
+root: ???
+styles: ["Drunk"]
+movements_type: ["FW"]
+sequence_ids: ["02"]

@@ -1,0 +1,60 @@
+defaults:
+  ###### ENGINE
+  - engine/runner: lightning
+  - engine/modules: [import, manual_seed, rerun, numpy]
+  ###### LOGGERS
+  - engine/loggers: tabular
+
+  ###### CHECKPOINT
+  - engine/runner/checkpoint: lightning
+
+  # ###### DATA
+  - data/train/loader: torch
+  - data/train/iterator: indexed
+  - data/train/augmentation: none
+  - src/data/train: [xia]
+
+  - data/test/loader: torch
+  - data/test/iterator: indexed
+  - data/test/augmentation: none
+  - src/data/test: [xia]
+
+  # ###### MODEL
+  - model: moai
+  - model/components/encoder: [mlp]
+  - src/components/restyling: [neutral, style]
+  - model/components/decoder: [mlp]
+  - src/components/restyling: [discriminator]
+  # ###### MONADS
+  - model/monads/human/pose: [forward_kinematics]
+  - model/monads/generation/tensor: [identity]
+  - model/monads/geometry/rotation:
+      [rotvec_to_rotmat, roma_unitquat_to_rotvec, roma_rotvec_to_unitquat]
+  - src/monads/utils: [foot_contact, force_grad]
+  # ###### PARAMETERS
+  - model/parameters/initializers: [default]
+  - model/parameters/optimizers: adam
+  - discriminator
+  - generator
+  # ###### SUPERVISION
+  - model/objectives/regression: [L2, MSE]
+  - src/objectives: [quat_diff, gradient_penalty]
+  # ###### VALIDATION
+
+  # ###### VISUALIZATION
+  - src/monitor/visualization: [skeleton3d]
+  - model/monitors/visualization/rerun: [optimization_losses]
+
+  ###### EXPORTERS
+
+  # ###### EXTRA FILES
+  - model
+  - options
+  - monitor
+  - data
+  - objectives
+  - processes_flows
+
+  ###### HYDRA
+  - override hydra/hydra_logging: moai
+  - override hydra/job_logging: moai

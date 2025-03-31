@@ -1,0 +1,22 @@
+# @package _global_
+
+data:
+  train:
+    loader:
+      shuffle: true
+      drop_last: true
+    iterator:
+      datasets:
+        xia:
+          data_path: ${XIA_PATH_DATA} # Path to npz files
+          skel_path: ${XIA_PATH_SKEL_PATH} # Path to CMU skeleton
+          subset_name: train
+  test:
+    loader:
+      shuffle: false
+    iterator:
+      datasets:
+        xia:
+          data_path: ${XIA_PATH_DATA} # Path to npz files
+          skel_path: ${XIA_PATH_SKEL_PATH} # Path to CMU skeleton
+          subset_name: test

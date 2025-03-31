@@ -1,0 +1,26 @@
+# @package _global_
+
+experiment:
+  visdom_ip: localhost
+  name: erd_train
+  batch_size: 16
+  workers: 1
+
+engine:
+  modules:
+    import:
+      run_path: true
+    manual_seed:
+      seed: 1337
+    rerun:
+      memory_limit: 1GB
+
+  runner:
+    deterministic: false # for cuda index add ops
+    devices: [1]
+    num_sanity_val_steps: 0
+    max_epochs: 20000
+    checkpoint:
+      monitor: 'train/loss/total'
+      mode: 'min'
+      filename: 'checkpoint_{epoch:02d}_{train_total:.2f}'

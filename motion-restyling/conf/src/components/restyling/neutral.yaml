@@ -1,0 +1,9 @@
+# @package model.components.neutral
+
+_target_: src.components.temporal.restyle.neutral.NeutralTransfer
+configuration:
+  in_features: ${LATENT_DIM} # 32
+  hidden_features: ${LATENT_DIM}
+  blocks: ${NEUTRAL_LAYER_NUM}
+  batch_first: true
+  content_num: 1

@@ -1,0 +1,4 @@
+# @package model.monads.landmark_offsets
+
+_target_:  src.monads.body.landmarks.LandmarksOffsets
+parents: ???

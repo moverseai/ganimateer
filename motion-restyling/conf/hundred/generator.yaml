@@ -1,0 +1,8 @@
+# @package model.parameters.groups.generator
+
+_target_: moai.parameters.selectors.model.ModelParameterSelector
+modules:
+  - encoder
+  - neutral
+  - style
+  - decoder

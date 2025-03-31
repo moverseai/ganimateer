@@ -1,0 +1,369 @@
+# @package _global_
+
+_moai_:
+  _definitions_:
+    _flows_:
+      discriminator:
+        input:
+          - input_disc
+          - ${mi:"cat(gen_positions_wo_root_disc, gen_velocity_wo_root_disc, -1)"}
+        attention:
+          - ${mi:"cat(input_style, content, -1)"}
+          - ${mi:"cat(transferred_style, content, -1)"}
+        _out_: [real_scores, fake_scores]
+      encoder:
+        input:
+          - ${mi:"cat(joint_rotations_quat_enc, joint_positions_wo_root_enc, velocity_wo_root_enc, contact_enc, content_enc, style_enc, -1)"}
+        _out_: [z_latent]
+      neutral:
+        input:
+          - ${mi:"view(z_latent, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+        content: [content]
+        _out_: [neutral_output]
+      style:
+        input:
+          - ${mi:"view(z_latent, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+          - ${mi:"view(z_latent, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+        transferred_style: [input_style, transferred_style]
+        _out_: [rec_stylised_output, gen_stylised_output]
+      process_output:
+        _mi_process_latent:
+          expression:
+            # features from recontruction
+            - ${mi:"neutral_output + rec_stylised_output"}
+            - ${mi:"cat(rec_z_latent, input_style, -1)"}
+            # features fromt the fake motion
+            - ${mi:"neutral_output + gen_stylised_output"}
+            - ${mi:"cat(gen_z_latent, transferred_style, -1)"}
+          _out_:
+            # features from recontruction
+            - rec_z_latent
+            - rec_features
+            # features fromt the fake motion
+            - gen_z_latent
+            - gen_features
+      decoder:
+        input:
+          - rec_features # This could be input to other mondas as well (e.g. position estimation, velocity, etc.)
+          - gen_features
+        _out_: [reconstructed_rotations, generated_rotations] #TODO: this should be normalised!!
+      preprocess:
+        roma_rotvec_to_unitquat:
+          rotation: [joint_rotations]
+          _out_: [joint_rotations_quat]
+        _mi_calculate_velocities:
+          expression: # B, T, J, 3
+            # helper tensors
+            - ${mi:"zeros(zero_translation)"}
+            - ${mi:"unsq(zeros_root_joint, 1)"}
+            - ${mi:"zeros_root_joint_unsq[:,:,0,:,:]"}
+            # get root joint
+            - ${mi:"joint_rotations[:, :, 0:1, :]"}
+            #
+            - ${mi:"joint_positions[:, 1:${EPISODE_LENGTH}, :, :]"}
+            - ${mi:"joint_positions[:, 0:${EPISODE_LENGTH_MINUS_ONE}, :, :]"}
+            - ${mi:"joint_positions_all_but_first - joint_positions_all_but_last"}
+            # get all expect root joint
+            - ${mi:"joint_rotations[:, :, 1:31, :]"} # assumes xia joints
+            # calculate velocity for all joints except root
+            - ${mi:"joint_positions[:, 1:${EPISODE_LENGTH}, :, :]"}
+            - ${mi:"joint_positions[:, 0:${EPISODE_LENGTH_MINUS_ONE}, :, :]"}
+            - ${mi:"joint_positions_wo_root_all_but_first - joint_positions_wo_root_all_but_last"}
+            # get last frame velocity
+            - ${mi:"(-2 * velocity[:,-1,:,:] - velocity[:,-2,:,:])"} # NOTE: this gives a wrong sign to the velocity, thats why there is a minus sign upfront
+            - ${mi:"unsq(last_frame_velocity, 1)"}
+            # cat zero velocity for the first frame
+            - ${mi:"cat(velocity, last_frame_velocity, 1)"}
+            # reshape to B, T, J * 3
+            - ${mi:"view(joint_positions, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+            - ${mi:"view(velocity_wo_root, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+            - ${mi:"view(rotations_wo_root, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+            # reshape to B * T, J * 3
+            - ${mi:"view(rotation, -1, 124)"} # 31 * 4
+            - ${mi:"view(joint_positions, -1, 60)"} # 20 * 3
+            - ${mi:"view(velocity_wo_root, -1, 60)"} # 20 * 3
+          _out_:
+            # helper tensors
+            - zeros_root_joint
+            - zeros_root_joint_unsq
+            - zero_velocity_first_frame
+            # get root joint
+            - root_rotation
+            # get all joints
+            - joint_positions_all_but_first
+            - joint_positions_all_but_last
+            - velocity
+            # get all expect root joint
+            - rotations_wo_root
+            # calculate velocity for all joints except root
+            - joint_positions_wo_root_all_but_first
+            - joint_positions_wo_root_all_but_last
+            - velocity_wo_root
+            # get last frame velocity
+            - last_frame_velocity
+            - last_frame_velocity
+            # cat zero velocity for the first frame
+            - velocity_wo_root
+            # reshape to B, T, J * 3
+            - positions_wo_root_disc
+            - velocity_wo_root_disc
+            - rotations_wo_root
+            # reshape to B * T, J * 3
+            - joint_rotations_quat_enc
+            - joint_positions_wo_root_enc
+            - velocity_wo_root_enc
+        _mi_reshape_for_encoder:
+          expression:
+            - ${mi:"view(contact, -1, 4)"} # same as the number of used feet joints
+            - ${mi:"view(input_style, -1, 7)"} # same as the number of number of styles
+            - ${mi:"view(content, -1, 5)"} # same as the number of number of styles
+          _out_:
+            - contact_enc
+            - style_enc
+            - content_enc
+        # dummy tensors to keep in memory for the whole flow
+        _mi_dummy_tensors:
+          expression:
+            - ${mi:"zeros(positions_wo_root_disc)"}
+            - ${mi:"zeros(velocity_wo_root_disc)"}
+          _out_:
+            - gen_positions_wo_root_disc
+            - gen_velocity_wo_root_disc
+      preprocess_disc:
+        force_grad:
+          tensor:
+            - ${mi:"cat(positions_wo_root_disc, velocity_wo_root_disc, -1)"}
+          _out_: [input_disc]
+      postprocess_discriminator:
+        _mi_create_gt:
+          expression:
+            - ${mi:"ones(real_scores)"}
+            - ${mi:"ones(fake_scores)"}
+            - ${mi:"-(gt_fake_scores)"}
+            - ${mi:"zeros(fake_scores)"}
+          _out_:
+            - gt_real_scores
+            - gt_fake_scores
+            - gt_fake_scores
+            - gt_zero_scores
+      postprocess_generator:
+        roma_unitquat_to_rotvec:
+          rotation:
+            - ${mi:"view(reconstructed_rotations, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1, 4)"}
+            - ${mi:"view(generated_rotations, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1, 4)"}
+          _out_: [reconstructed_rotations_rotvec, generated_rotations_rotvec]
+        _mi_slice_joints:
+          expression:
+            # For recontructed motion
+            - ${mi:"reconstructed_rotations_rotvec[:,:,0:1,:]"}
+            - ${mi:"reconstructed_rotations_rotvec[:,:,1:31,:]"}
+            - ${mi:"all_joint_positions[0,:,:,:]"}
+            - ${mi:"view(gt_joints_first_batch,${EPISODE_LENGTH}, -1, 3)"}
+            - ${mi:"view(all_joint_positions, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1, 3)"}
+            - ${mi:"gt_joints_viewed[:,:,${chosen_joints_wo_root},:]"}
+            # For the generated motion
+            - ${mi:"generated_rotations_rotvec[:,:,0:1,:]"}
+            - ${mi:"generated_rotations_rotvec[:,:,1:31,:]"}
+          _out_:
+            # For recontructed motion
+            - rec_root_rotation
+            - rec_joint_rotations_wo_root
+            - gt_joints_first_batch
+            - gt_joints_first_batch
+            - gt_joints_viewed
+            - gt_joints_viewed
+            # For the generated motion
+            - gen_root_rotation
+            - gen_joint_rotations_wo_root
+        rotvec_to_rotmat:
+          rotation:
+            [
+              reconstructed_rotations_rotvec,
+              rec_joint_rotations_wo_root,
+              joint_rotations,
+              generated_rotations_rotvec,
+              gen_joint_rotations_wo_root,
+            ]
+          _out_:
+            [
+              rec_rotmat,
+              rec_rotmat_wo_root,
+              rotmat,
+              gen_rotmat,
+              gen_rotmat_wo_root,
+            ]
+        forward_kinematics:
+          rotation:
+            - rec_rotmat
+            - gen_rotmat
+          position:
+            - ${mi:"zeros_root_joint[:,:,0,:]"}
+            - ${mi:"zeros_root_joint[:,:,0,:]"}
+          offsets:
+            - ${mi:"unsq(offsets, 0)"}
+            - ${mi:"unsq(offsets, 0)"}
+          parents:
+            - parents
+            - parents
+          _out_: [rec_fk, gen_fk]
+        _mi_create_velocities:
+          expression:
+            # Get root joint
+            - ${mi:"gen_fk.positions[:,:,0:1,:]"}
+            - ${mi:"gen_fk.positions[:,:,${chosen_joints_wo_root},:]"}
+            # offset root joint from rest of the joints
+            - ${mi:"gen_joint_positions_wo_root - gen_root_position"}
+            # calculate velocity for all joints except root
+            - ${mi:"gen_fk.positions[:, 1:${EPISODE_LENGTH}, ${chosen_joints_wo_root}, :]"}
+            - ${mi:"gen_fk.positions[:, 0:${EPISODE_LENGTH_MINUS_ONE}, ${chosen_joints_wo_root}, :]"}
+            - ${mi:"gen_joint_positions_wo_root_all_but_first - gen_joint_positions_wo_root_all_but_last"}
+            # get last frame velocity
+            - ${mi:"(-2 * gen_velocity_wo_root[:,-1,:,:] - gen_velocity_wo_root[:,-2,:,:])"} # NOTE: this gives a wrong sign to the velocity, thats why there is a minus sign upfront
+            - ${mi:"unsq(gen_last_frame_velocity, 1)"}
+            # TODO: add the first frame velocity instead; cat zero velocity for the first frame
+            - ${mi:"cat(gen_velocity_wo_root, gen_last_frame_velocity, 1)"}
+            # reshape to B, T, J * 3
+            - ${mi:"view(gen_positions_wo_root, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+            - ${mi:"view(gen_velocity_wo_root, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+            # - ${mi:"view(gen_rotations_wo_root, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1)"}
+            # reshape quat
+            - ${mi:"view(generated_rotations, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1, 4)"}
+            # get first batch
+            - ${mi:"gen_fk.positions[0,:,:,:]"}
+            - ${mi:"input_style[0,:,:]"}
+            - ${mi:"transferred_style[0,:,:]"}
+            # For recontructed motion
+            # Get root joint
+            - ${mi:"rec_fk.positions[:,:,0:1,:]"}
+            - ${mi:"rec_fk.positions[:,:,${chosen_joints_wo_root},:]"}
+            # offset root joint from rest of the joints
+            - ${mi:"rec_joint_positions_wo_root - rec_root_position"}
+            # calculate velocity for all joints except root
+            - ${mi:"rec_fk.positions[:, 1:${EPISODE_LENGTH}, ${chosen_joints_wo_root}, :]"}
+            - ${mi:"rec_fk.positions[:, 0:${EPISODE_LENGTH_MINUS_ONE}, ${chosen_joints_wo_root}, :]"}
+            - ${mi:"rec_joint_positions_wo_root_all_but_first - rec_joint_positions_wo_root_all_but_last"}
+            # get last frame velocity
+            - ${mi:"(-2 * rec_velocity_wo_root[:,-1,:,:] - rec_velocity_wo_root[:,-2,:,:])"} # NOTE: this gives a wrong sign to the velocity, thats why there is a minus sign upfront
+            - ${mi:"unsq(rec_last_frame_velocity, 1)"}
+            # TODO: add the first frame velocity instead; cat zero velocity for the first frame
+            - ${mi:"cat(rec_velocity_wo_root, rec_last_frame_velocity, 1)"}
+            # reshape quat
+            - ${mi:"view(reconstructed_rotations, ${experiment.batch_size}, ${EPISODE_LENGTH}, -1, 4)"}
+            # get first batch of reconstructed motion
+            - ${mi:"rec_fk.positions[0,:,:,:]"}
+            # dummy input for discriminator
+            - ${mi:"cat(positions_wo_root_disc, velocity_wo_root_disc, -1)"}
+          _out_:
+            # Get root joint
+            - gen_root_position
+            - gen_joint_positions_wo_root
+            # offset root joint from rest of the joints
+            - gen_positions_wo_root
+            # calculate velocity for all joints except root
+            - gen_joint_positions_wo_root_all_but_first
+            - gen_joint_positions_wo_root_all_but_last
+            - gen_velocity_wo_root
+            # get last frame velocity
+            - gen_last_frame_velocity
+            - gen_last_frame_velocity
+            # cat last frame for the first frame
+            - gen_velocity_wo_root
+            # reshape to B, T, J * 3
+            - gen_positions_wo_root_disc
+            - gen_velocity_wo_root_disc
+            # - gen_rotations_wo_root
+            # reshape quat
+            - gen_joint_rotations_quat
+            # get first batch
+            - gen_fk_positions_first_batch
+            - input_style_first_batch
+            - transferred_style_first_batch
+            # For recontructed motion
+            # Get root joint
+            - rec_root_position
+            - rec_joint_positions_wo_root
+            # offset root joint from rest of the joints
+            - rec_positions_wo_root
+            # calculate velocity for all joints except root
+            - rec_joint_positions_wo_root_all_but_first
+            - rec_joint_positions_wo_root_all_but_last
+            - rec_velocity_wo_root
+            # get last frame velocity
+            - rec_last_frame_velocity
+            - rec_last_frame_velocity
+            # cat zero velocity for the first frame
+            - rec_velocity_wo_root
+            # reshape quat
+            - rec_joint_rotations_quat
+            # get first batch of reconstructed motion
+            - rec_fk_positions_first_batch
+            # dummy input for discriminator
+            - input_disc
+      kinematics:
+        _mi_slice_joints:
+          expression:
+            - ${mi:"joint_rotations[:,:,0:1,:]"}
+            # - ${mi:"joint_positions[:,:,0:1,:]"}
+            - ${mi:"joint_rotations[:,:,1:31,:]"}
+            # - ${mi:"joint_positions[:,:,1:24,:]"}
+          _out_:
+            - root_rotation
+            # - root_position
+            - joint_rotations_wo_root
+            # - joint_positions_wo_root
+        rotvec_to_rotmat:
+          rotation: [joint_rotations, joint_rotations_wo_root]
+          _out_: [rotmat, rotmat_wo_root]
+        forward_kinematics:
+          rotation:
+            - rotmat
+          position:
+            - ${mi:"zeros_root_joint[:,:,0,:]"}
+          offsets:
+            - ${mi:"unsq(offsets, 0)"}
+          parents:
+            - parents
+          _out_: [fk]
+  _execution_:
+    _initialize_:
+      _fit_:
+        _setup_: [default]
+    # _test_: # TODO: add the correct test setup
+    #   _setup_: [pretrained]
+    _lightning_step_: # forces execution of the following flows
+      _fit_:
+        _stages_:
+          train_generator:
+            _optimizer_: train_generator
+            _objective_: train_generator
+            _flows_:
+              [
+                preprocess,
+                encoder,
+                neutral,
+                style,
+                process_output,
+                decoder,
+                postprocess_generator,
+                discriminator,
+                postprocess_discriminator,
+              ]
+          train_discriminator:
+            _optimizer_: train_discriminator
+            _objective_: train_discriminator
+            _flows_:
+              [
+                encoder,
+                neutral,
+                style,
+                process_output,
+                decoder,
+                postprocess_generator,
+                preprocess_disc,
+                discriminator,
+                postprocess_discriminator,
+              ]
+      _test_:
+        _datasets_:
+          hundred:
+            _flows_: [preprocess]

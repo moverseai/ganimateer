@@ -1,0 +1,3 @@
+# @package model.monads.skinning
+
+_target_: src.monads.body.skinning.Skinning
